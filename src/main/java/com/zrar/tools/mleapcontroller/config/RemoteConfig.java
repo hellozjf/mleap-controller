@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties("remote")
 public class RemoteConfig {
     private String address;
+    private Integer port;
     private String username;
     private String password;
     private String folder;

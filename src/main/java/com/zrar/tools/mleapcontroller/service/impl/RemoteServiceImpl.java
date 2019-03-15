@@ -21,7 +21,7 @@ public class RemoteServiceImpl implements RemoteService {
     @Override
     public boolean scp(String absoluteFilePath) {
         try {
-            Connection conn = new Connection(remoteConfig.getAddress());
+            Connection conn = new Connection(remoteConfig.getAddress(), remoteConfig.getPort());
             conn.connect();
             boolean isAuth = conn.authenticateWithPassword(remoteConfig.getUsername(), remoteConfig.getPassword());
             if (!isAuth) {

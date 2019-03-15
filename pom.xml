@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.zrar.tools</groupId>
     <artifactId>mleap-controller</artifactId>
-    <version>0.0.6-SNAPSHOT</version>
+    <version>0.0.8-SNAPSHOT</version>
     <name>mleap-controller</name>
     <description>Demo project for Spring Boot</description>
 
@@ -59,9 +59,16 @@
                 <version>${dockerfile-maven-version}</version>
                 <executions>
                     <execution>
-                        <id>default</id>
+                        <id>build</id>
+                        <phase>install</phase>
                         <goals>
                             <goal>build</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>push</id>
+                        <phase>deploy</phase>
+                        <goals>
                             <goal>push</goal>
                         </goals>
                     </execution>
