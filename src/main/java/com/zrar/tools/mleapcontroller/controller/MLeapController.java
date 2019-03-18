@@ -4,6 +4,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.hankcs.hanlp.HanLP;
+import com.hankcs.hanlp.seg.common.Term;
 import com.zrar.tools.mleapcontroller.constant.ResultEnum;
 import com.zrar.tools.mleapcontroller.util.ResultUtils;
 import com.zrar.tools.mleapcontroller.vo.ResultVO;
@@ -20,6 +22,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author Jingfeng Zhou
@@ -131,4 +134,6 @@ public class MLeapController {
             return ResultUtils.error(ResultEnum.INVOKE_FAILED);
         }
     }
+
+
 }

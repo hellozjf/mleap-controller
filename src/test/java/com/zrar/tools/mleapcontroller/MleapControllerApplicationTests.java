@@ -1,5 +1,7 @@
 package com.zrar.tools.mleapcontroller;
 
+import com.hankcs.hanlp.HanLP;
+import com.hankcs.hanlp.seg.common.Term;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
@@ -13,12 +15,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.List;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -87,4 +91,6 @@ public class MleapControllerApplicationTests {
         String result = restTemplate.postForObject(url, requestEntity, String.class);
         log.debug("result = {}", result);
     }
+
+
 }
