@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.zrar.tools</groupId>
     <artifactId>mleap-controller</artifactId>
-    <version>0.0.8-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>mleap-controller</name>
     <description>Demo project for Spring Boot</description>
 
@@ -37,13 +37,6 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-        </dependency>
-
-        <!-- 实现scp功能，以便将mleap模型拷贝到docker服务器上面 -->
-        <dependency>
-            <groupId>ch.ethz.ganymed</groupId>
-            <artifactId>ganymed-ssh2</artifactId>
-            <version>build210</version>
         </dependency>
     </dependencies>
 

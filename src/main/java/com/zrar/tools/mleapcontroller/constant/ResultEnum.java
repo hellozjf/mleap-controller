@@ -15,6 +15,7 @@ public enum ResultEnum {
     SCP_FAILED(4, "拷贝到服务器失败"),
     FILE_IS_WRONG(5, "上传的文件有问题"),
     INVOKE_FAILED(6, "模型调用失败"),
+    MODEL_ONLINE_FAILED(7, "模型上线失败"),
     ;
 
     Integer code;
