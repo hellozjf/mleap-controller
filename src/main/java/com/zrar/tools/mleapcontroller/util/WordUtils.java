@@ -1,4 +1,4 @@
-package com.zrar.tools.mleapcontroller;
+package com.zrar.tools.mleapcontroller.util;
 
 import com.hankcs.hanlp.HanLP;
 import com.hankcs.hanlp.seg.common.Term;
@@ -10,16 +10,17 @@ import java.util.List;
  * @author Jingfeng Zhou
  */
 @Slf4j
-public class Test {
-
-    @org.junit.Test
-    public void test() {
-        String wordcut = wordCut("个人代开劳务发票的四千、八百是怎么回事？", "vswzyc");
-        log.debug("{}", wordcut);
-    }
+public class WordUtils {
 
     /**
-     *  切词方法，仅保留税务专有词
+     * 词性：税务专有词
+     */
+    public static final String SWZYC = "vswzyc";
+
+    /**
+     * 切词方法，仅保留税务专有词
+     * @param lineObject 需要分词的句子
+     * @param saveNature 词性，vswzyc是税务专有词
      */
     public static String wordCut (Object lineObject,Object saveNature) {
         if (lineObject == null) {
@@ -32,7 +33,7 @@ public class Test {
         List<Term> termList = HanLP.segment(line);
         StringBuffer res = new StringBuffer();
         for (Term i : termList) {
-            log.debug("i={}", i);
+            // 这里可以打印i看看有哪些词性
             String word = i.word;
             String nature = i.nature.toString();
             if (nature.contains(saveNature.toString())) {

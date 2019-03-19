@@ -43,6 +43,8 @@
             <groupId>com.hankcs</groupId>
             <artifactId>hanlp</artifactId>
             <version>portable-1.6.8</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/lib/hanlp-portable-1.6.8.jar</systemPath>
         </dependency>
     </dependencies>
 
@@ -51,6 +53,9 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <includeSystemScope>true</includeSystemScope>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>com.spotify</groupId>

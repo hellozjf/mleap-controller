@@ -16,6 +16,8 @@ public enum ResultEnum {
     FILE_IS_WRONG(5, "上传的文件有问题"),
     INVOKE_FAILED(6, "模型调用失败"),
     MODEL_ONLINE_FAILED(7, "模型上线失败"),
+    JSON_ERROR(8, "JSON错误"),
+    PREDICT_ERROR(9, "预测错误"),
     ;
 
     Integer code;
