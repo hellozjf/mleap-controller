@@ -1,5 +1,6 @@
 package com.zrar.tools.mleapcontroller;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zrar.tools.mleapcontroller.util.WordUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +42,7 @@ public class MleapControllerApplicationTests {
     public void testOnlineModel() {
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://aliyun.hellozjf.com:8080/mleap1/onlineModel";
-        Resource resource = new ClassPathResource("airbnb.model.lr.zip");
+        Resource resource = new ClassPathResource("swModel.zip");
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
         param.add("file", resource);
         String result = restTemplate.postForObject(url, param, String.class);
@@ -61,9 +62,10 @@ public class MleapControllerApplicationTests {
 
     /**
      * 测试调用模型
+     * 需要导入airbnb.model.lr.zip或airbnb.model.rf.zip模型
      */
     @Test
-    public void testInvokeModel() {
+    public void testInvokeModel() throws Exception {
 
         String url = "http://aliyun.hellozjf.com:8080/mleap1/invokeModel";
 
@@ -90,7 +92,8 @@ public class MleapControllerApplicationTests {
         HttpEntity<String> requestEntity = new HttpEntity<>(stringBuilder.toString(), requestHeaders);
 
         String result = restTemplate.postForObject(url, requestEntity, String.class);
-        log.debug("result = {}", result);
+        JsonNode jsonNode = objectMapper.readTree(result);
+        log.debug("result = {}", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode));
     }
 
     /**
@@ -103,8 +106,13 @@ public class MleapControllerApplicationTests {
         log.debug("result = {}", result);
     }
 
+    /**
+     * 测试税务专有词预测
+     * 需要导入swModel.zip模型
+     * @throws Exception
+     */
     @Test
-    public void testPredict() {
+    public void testPredict() throws Exception {
         String url = "http://aliyun.hellozjf.com:8080/mleap1/predict";
 
         RestTemplate restTemplate = new RestTemplate();
@@ -113,11 +121,17 @@ public class MleapControllerApplicationTests {
         HttpEntity<String> requestEntity = new HttpEntity<>("新个税继续教育专项附加扣除中，扣除范围是怎么规定的？", requestHeaders);
 
         String result = restTemplate.postForObject(url, requestEntity, String.class);
-        log.debug("result = {}", result);
+        JsonNode jsonNode = objectMapper.readTree(result);
+        log.debug("result = {}", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode));
     }
 
+    /**
+     * 测试税务专有词预测
+     * 需要导入swModel.zip模型
+     * @throws Exception
+     */
     @Test
-    public void testPredict2() {
+    public void testPredict2() throws Exception {
         String url = "http://aliyun.hellozjf.com:8080/mleap1/predict2";
 
         RestTemplate restTemplate = new RestTemplate();
@@ -132,6 +146,7 @@ public class MleapControllerApplicationTests {
         HttpEntity<String> requestEntity = new HttpEntity<>(body, requestHeaders);
 
         String result = restTemplate.postForObject(url, requestEntity, String.class);
-        log.debug("result = {}", result);
+        JsonNode jsonNode = objectMapper.readTree(result);
+        log.debug("result = {}", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode));
     }
 }
