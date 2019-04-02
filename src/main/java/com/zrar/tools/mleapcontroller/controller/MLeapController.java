@@ -117,8 +117,9 @@ public class MLeapController {
      */
     @PostMapping("/{mleap}/predict")
     public ResultVO predict(@PathVariable("mleap") String mleap,
-                            @RequestBody String line) {
-        TaxClassifyPredictVO taxClassifyPredictVO = mLeapService.predict(mleap, line);
+                            @RequestBody String line,
+                            @RequestParam(defaultValue = "") String nature) {
+        TaxClassifyPredictVO taxClassifyPredictVO = mLeapService.predict(mleap, line, nature);
         return ResultUtils.success(taxClassifyPredictVO);
     }
 
@@ -131,14 +132,16 @@ public class MLeapController {
      */
     @PostMapping("/{mleap}/predict2")
     public ResultVO predict2(@PathVariable("mleap") String mleap,
-                            @RequestBody String lines) {
+                             @RequestBody String lines,
+                             @RequestParam(defaultValue = "") String nature) {
         log.debug("lines = {}", lines);
         String[] lineArray = lines.split("(\r\n)|(\n)");
         for (String line : lineArray) {
             log.debug("line = {}", line);
         }
         List<String> lineList = Arrays.asList(lineArray);
-        List<TaxClassifyPredictVO> taxClassifyPredictVOList = mLeapService.predict(mleap, lineList);
+        List<TaxClassifyPredictVO> taxClassifyPredictVOList = mLeapService.predict(mleap, lineList, nature);
         return ResultUtils.success(taxClassifyPredictVOList);
     }
+
 }

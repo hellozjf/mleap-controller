@@ -83,7 +83,7 @@ public class JsonUtils {
                 String name = field.get("name").asText();
                 if (name.equalsIgnoreCase("probability")) {
                     indexes.setIndexProbability(i);
-                } else if (name.equalsIgnoreCase("predict")) {
+                } else if (name.equalsIgnoreCase("predict") || name.equalsIgnoreCase("prediction")) {
                     indexes.setIndexPredict(i);
                 } else if (name.equalsIgnoreCase("mlType")) {
                     indexes.setIndexMlType(i);

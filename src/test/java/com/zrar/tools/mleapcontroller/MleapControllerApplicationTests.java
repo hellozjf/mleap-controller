@@ -42,7 +42,7 @@ public class MleapControllerApplicationTests {
     public void testOnlineModel() {
         RestTemplate restTemplate = new RestTemplate();
         String url = "http://aliyun.hellozjf.com:8080/mleap1/onlineModel";
-        Resource resource = new ClassPathResource("swModel.zip");
+        Resource resource = new ClassPathResource("yythModel.zip");
         MultiValueMap<String, Object> param = new LinkedMultiValueMap<>();
         param.add("file", resource);
         String result = restTemplate.postForObject(url, param, String.class);
@@ -55,7 +55,7 @@ public class MleapControllerApplicationTests {
     @Test
     public void testOfflineModel() {
         RestTemplate restTemplate = new RestTemplate();
-        String url = "http://aliyun.hellozjf.com:8080/mleap1/offlineModel";
+        String url = "http://192.168.2.150:8081/mleap1/offlineModel";
         String result = restTemplate.postForObject(url, null, String.class);
         log.debug("result = {}", result);
     }
@@ -67,7 +67,7 @@ public class MleapControllerApplicationTests {
     @Test
     public void testInvokeModel() throws Exception {
 
-        String url = "http://aliyun.hellozjf.com:8080/mleap1/invokeModel";
+        String url = "http://192.168.2.150:8081/mleap1/invokeModel";
 
         // 读取文件
         Resource resource = new ClassPathResource("frame.airbnb.json");
@@ -89,7 +89,7 @@ public class MleapControllerApplicationTests {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<String> requestEntity = new HttpEntity<>(stringBuilder.toString(), requestHeaders);
+        HttpEntity<String> requestEntity = new HttpEntity<>("{\"schema\":{\"fields\":[{\"name\":\"words\",\"type\":\"string\"}]},\"rows\":[[\"税务 税务 投诉 咨询 投诉 投诉 咨询 投诉 咨询 咨询 不 咨询 投诉\"]]}", requestHeaders);
 
         String result = restTemplate.postForObject(url, requestEntity, String.class);
         JsonNode jsonNode = objectMapper.readTree(result);
@@ -118,7 +118,7 @@ public class MleapControllerApplicationTests {
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders requestHeaders = new HttpHeaders();
         requestHeaders.setContentType(MediaType.APPLICATION_JSON);
-        HttpEntity<String> requestEntity = new HttpEntity<>("新个税继续教育专项附加扣除中，扣除范围是怎么规定的？", requestHeaders);
+        HttpEntity<String> requestEntity = new HttpEntity<>("你看税务税务等，嗯，那个你要那个的话你打12366转投诉你跟他们说，跟我们联系，你这现在你跟我联系的是咨询没用的，你要跟他说投诉投诉工单，他就给我那个咨询了给我，那你就跟他说我来投诉你，不要咨询给我转咨询，但是你说这不要转咨询转投诉噢", requestHeaders);
 
         String result = restTemplate.postForObject(url, requestEntity, String.class);
         JsonNode jsonNode = objectMapper.readTree(result);
@@ -132,7 +132,7 @@ public class MleapControllerApplicationTests {
      */
     @Test
     public void testPredict2() throws Exception {
-        String url = "http://aliyun.hellozjf.com:8080/mleap1/predict2";
+        String url = "http://192.168.2.150:8081/mleap1/predict2";
 
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders requestHeaders = new HttpHeaders();

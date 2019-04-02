@@ -38,9 +38,17 @@ public interface MLeapService {
      * 调用某个mleap服务的预测接口，传输的是待预测的字符串，返回的是预测结果
      * @param mleap
      * @param raw
+     * @param nature 词性，如果为null表示不筛选词性
      * @return
      */
-    TaxClassifyPredictVO predict(String mleap, String raw);
+    TaxClassifyPredictVO predict(String mleap, String raw, String nature);
 
-    List<TaxClassifyPredictVO> predict(String mleap, List<String> raws);
+    /**
+     * 调用某个mleap服务的预测接口，传输的是待预测的字符串列表，返回的是预测结果列表
+     * @param mleap
+     * @param raws
+     * @param nature 词性，如果为null表示不筛选词性
+     * @return
+     */
+    List<TaxClassifyPredictVO> predict(String mleap, List<String> raws, String nature);
 }

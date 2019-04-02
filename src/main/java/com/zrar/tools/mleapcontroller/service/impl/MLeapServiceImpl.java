@@ -91,18 +91,18 @@ public class MLeapServiceImpl implements MLeapService {
     }
 
     @Override
-    public TaxClassifyPredictVO predict(String mleap, String raw) {
-        List<TaxClassifyPredictVO> taxClassifyPredictVOList = predict(mleap, Arrays.asList(raw));
+    public TaxClassifyPredictVO predict(String mleap, String raw, String nature) {
+        List<TaxClassifyPredictVO> taxClassifyPredictVOList = predict(mleap, Arrays.asList(raw), nature);
         return taxClassifyPredictVOList.get(0);
     }
 
     @Override
-    public List<TaxClassifyPredictVO> predict(String mleap, List<String> raws) {
+    public List<TaxClassifyPredictVO> predict(String mleap, List<String> raws, String nature) {
 
         // 切词
         List<String> wordCuts = new ArrayList<>();
         for (String raw : raws) {
-            String wordCut = WordUtils.wordCut(raw, WordUtils.SWZYC);
+            String wordCut = WordUtils.wordCut(raw, nature);
             wordCuts.add(wordCut);
         }
 
@@ -121,8 +121,9 @@ public class MLeapServiceImpl implements MLeapService {
 
         // 获取mlType和probability的index
         Indexes indexes = JsonUtils.getIndexes(objectMapper, jsonNode);
-        if (indexes == null || indexes.getIndexMlType() == -1 || indexes.getIndexPredict() == -1 || indexes.getIndexProbability() == -1) {
-            // 如果概率，预测项目，预测的字符串为空，返回预测错误
+        if (indexes == null || indexes.getIndexPredict() == null || indexes.getIndexProbability() == null) {
+            // 如果概率，预测项目为空，返回预测错误
+            // 注意预测字符串可能为空，因为晓曦的模型返回的mlType确实不存在
             throw new MLeapException(ResultEnum.PREDICT_ERROR);
         }
         log.debug("indexMlType={}, indexPredict={}, indexProbability={}",
@@ -142,13 +143,16 @@ public class MLeapServiceImpl implements MLeapService {
                 Double predictProbability = null;
                 if (row.isArray()) {
                     arrayNode = (ArrayNode) row;
-                    predictString = arrayNode.get(indexes.getIndexMlType()).asText();
+                    if (indexes.getIndexMlType() != null) {
+                        predictString = arrayNode.get(indexes.getIndexMlType()).asText();
+                    }
                     log.debug("values = {}", arrayNode.get(indexes.getIndexProbability()).get("values"));
                     Integer predict = arrayNode.get(indexes.getIndexPredict()).intValue();
                     predictProbability = arrayNode.get(indexes.getIndexProbability()).get("values").get(predict).asDouble();
                     // 判断是否有错误
-                    if (predictString == null || predictProbability == null) {
-                        // 如果即取不到预测的字符串，也取不到预测的概率，返回预测错误
+                    if (predictProbability == null) {
+                        // 如果取不到预测的概率，返回预测错误
+                        // 注意，字符串确实有可能取不到
                         throw new MLeapException(ResultEnum.PREDICT_ERROR);
                     }
                 }

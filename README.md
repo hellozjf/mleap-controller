@@ -48,7 +48,7 @@ networks:
 
 上面的配置文件中，我只配置了三个mleap服务，如果需要部署多于三个mleap的服务，可以再增加mleap4、mleap5、……
 
-# 使用
+# ~~使用（已过时，请参见更多例子）~~
 
 ## 通过postman使用
 
@@ -135,4 +135,15 @@ networks:
         log.debug("result = {}", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode));
     }
 ```
+
+# 更多例子
+
+参见：`SwModelTest`和`YythModelTest`
+
+# 版本说明
+
+| 版本  | 内容                                    |
+| ----- | --------------------------------------- |
+| 1.0.1 | 补充代码，调通陈晓曦的模型yythModel.zip |
+| 1.0.0 | 初始版本，调通林镇杰的模型swModel.zip   |
 
