@@ -124,6 +124,21 @@ public class MLeapController {
     }
 
     /**
+     * 预测某句话的分类，以及这个分类的可信度
+     *
+     * @param mleap
+     * @param line
+     * @return
+     */
+    @PostMapping("/{mleap}/rawPredict")
+    public ResultVO rawPredict(@PathVariable("mleap") String mleap,
+                            @RequestBody String line,
+                            @RequestParam(defaultValue = "") String nature) {
+        TaxClassifyPredictVO taxClassifyPredictVO = mLeapService.predict(mleap, line, nature);
+        return ResultUtils.success(taxClassifyPredictVO);
+    }
+
+    /**
      * 预测多句话的分类，以及这个分类的可信度
      *
      * @param mleap

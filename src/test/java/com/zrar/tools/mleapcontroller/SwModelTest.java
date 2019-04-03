@@ -43,12 +43,14 @@ public class SwModelTest {
         predictMultiSwModel();
     }
 
-    private void uploadSwModel() throws Exception {
+    @Test
+    public void uploadSwModel() throws Exception {
 
         ToolUtils.upload(site, mleap, filename, objectMapper);
     }
 
-    private void predictSingleSwModel() throws Exception {
+    @Test
+    public void predictSingleSwModel() throws Exception {
 
         // 税务专有词里面有词性，所以需要加nature=vswzyc
         String url = site + "/" + mleap + "/predict?nature=vswzyc";
@@ -62,9 +64,12 @@ public class SwModelTest {
         JsonNode jsonNode = objectMapper.readTree(result);
         log.debug("result = {}", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode));
         Assert.assertEquals(jsonNode.get("code").intValue(), 0);
+        Assert.assertNotNull(jsonNode.get("data").get("predictString").textValue());
+        Assert.assertNotNull(jsonNode.get("data").get("predict").intValue());
     }
 
-    private void predictMultiSwModel() throws Exception {
+    @Test
+    public void predictMultiSwModel() throws Exception {
 
         // 税务专有词里面有词性，所以需要加nature=vswzyc
         String url = site + "/" + mleap + "/predict2?nature=vswzyc";

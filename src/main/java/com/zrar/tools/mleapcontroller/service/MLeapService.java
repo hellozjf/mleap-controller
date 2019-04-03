@@ -1,5 +1,6 @@
 package com.zrar.tools.mleapcontroller.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.zrar.tools.mleapcontroller.vo.TaxClassifyPredictVO;
 
 import java.io.File;
@@ -51,4 +52,5 @@ public interface MLeapService {
      * @return
      */
     List<TaxClassifyPredictVO> predict(String mleap, List<String> raws, String nature);
+
 }

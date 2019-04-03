@@ -21,7 +21,12 @@ public class TaxClassifyPredictVO {
     /**
      * 预测的分类结果
      */
-    private String predict;
+    private String predictString;
+
+    /**
+     * 预测的分类类别
+     */
+    private Integer predict;
 
     /**
      * 预测的分类概率

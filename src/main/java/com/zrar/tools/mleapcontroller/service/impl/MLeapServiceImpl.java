@@ -139,6 +139,7 @@ public class MLeapServiceImpl implements MLeapService {
             while (iterator.hasNext()) {
                 JsonNode row = iterator.next();
 
+                Integer predict = null;
                 String predictString = null;
                 Double predictProbability = null;
                 if (row.isArray()) {
@@ -147,7 +148,7 @@ public class MLeapServiceImpl implements MLeapService {
                         predictString = arrayNode.get(indexes.getIndexMlType()).asText();
                     }
                     log.debug("values = {}", arrayNode.get(indexes.getIndexProbability()).get("values"));
-                    Integer predict = arrayNode.get(indexes.getIndexPredict()).intValue();
+                    predict = arrayNode.get(indexes.getIndexPredict()).intValue();
                     predictProbability = arrayNode.get(indexes.getIndexProbability()).get("values").get(predict).asDouble();
                     // 判断是否有错误
                     if (predictProbability == null) {
@@ -160,7 +161,8 @@ public class MLeapServiceImpl implements MLeapService {
                 TaxClassifyPredictVO taxClassifyPredictVO = new TaxClassifyPredictVO();
                 taxClassifyPredictVO.setRaw(raws.get(i));
                 taxClassifyPredictVO.setWord(wordCuts.get(i));
-                taxClassifyPredictVO.setPredict(predictString);
+                taxClassifyPredictVO.setPredict(predict);
+                taxClassifyPredictVO.setPredictString(predictString);
                 taxClassifyPredictVO.setProbability(predictProbability);
                 taxClassifyPredictVOList.add(taxClassifyPredictVO);
 

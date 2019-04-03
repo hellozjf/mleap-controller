@@ -47,12 +47,14 @@ public class YythModelTest {
         predictMultiYythModel();
     }
 
-    private void uploadYythModel() throws Exception {
+    @Test
+    public void uploadYythModel() throws Exception {
 
         ToolUtils.upload(site, mleap, filename, objectMapper);
     }
 
-    private void predictSingleYythModel() throws Exception {
+    @Test
+    public void predictSingleYythModel() throws Exception {
 
         String url = site + "/" + mleap + "/predict";
 
@@ -65,9 +67,11 @@ public class YythModelTest {
         JsonNode jsonNode = objectMapper.readTree(result);
         log.debug("result = {}", objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(jsonNode));
         Assert.assertEquals(jsonNode.get("code").intValue(), 0);
+        Assert.assertNotNull(jsonNode.get("data").get("predict").intValue());
     }
 
-    private void predictMultiYythModel() throws Exception {
+    @Test
+    public void predictMultiYythModel() throws Exception {
 
         String url = site + "/" + mleap + "/predict2";
 
