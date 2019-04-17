@@ -1,54 +1,56 @@
 # 安装
 
-新建一个文件`docker-compose.yml`
+1. 确保安装了docker，使用`docker --version`查看是否已经安装docker，如果没有安装，请参考 [https://docs.docker.com/install/linux/docker-ce/centos/](https://docs.docker.com/install/linux/docker-ce/centos/) 安装docker
+2. 确保安装了docker-compose工具，使用`docker-compose --version`查看是否已经安装了docker-compose，如果没有安装，请参考 [https://docs.docker.com/compose/install/](https://docs.docker.com/compose/install/) 安装docker-compose
+3. 在服务器任意位置新建一个文件夹，然后在文件夹下面新建一个`docker-compose.yml`文件，内容为
 
-```
-version: '3'
-
-services:
-
-  mleap1:
-    image: combustml/mleap-serving:0.9.0-SNAPSHOT
-    volumes:
-      - /tmp/models:/models
+    ```
+    version: '3'
+    
+    services:
+    
+      mleap1:
+        image: combustml/mleap-serving:0.9.0-SNAPSHOT
+        restart: unless-stopped
+        volumes:
+          - /tmp/models:/models
+        networks:
+          - my-bridge
+    
+      mleap2:
+        image: combustml/mleap-serving:0.9.0-SNAPSHOT
+        restart: unless-stopped
+        volumes:
+          - /tmp/models:/models
+        networks:
+          - my-bridge
+    
+      mleap3:
+        image: combustml/mleap-serving:0.9.0-SNAPSHOT
+        restart: unless-stopped
+        volumes:
+          - /tmp/models:/models
+        networks:
+          - my-bridge
+    
+      mleap-controller:
+        image: hellozjf/mleap-controller:1.0.2
+        restart: unless-stopped
+        ports:
+          - 8081:8080
+        volumes:
+          - /tmp/models:/models
+        networks:
+          - my-bridge
+    
     networks:
-      - my-bridge
+      my-bridge:
+        driver: bridge
+    ```
 
-  mleap2:
-    image: combustml/mleap-serving:0.9.0-SNAPSHOT
-    volumes:
-      - /tmp/models:/models
-    networks:
-      - my-bridge
+    这个文件中只能同时使用3个模型，需要使用更多请自行在`docker-compose.yml`后面增加mleap4、mleap5……
 
-  mleap3:
-    image: combustml/mleap-serving:0.9.0-SNAPSHOT
-    volumes:
-      - /tmp/models:/models
-    networks:
-      - my-bridge
-
-  mleap-controller:
-    image: hellozjf/mleap-controller:1.0.2
-    ports:
-      - 8081:8080
-    volumes:
-      - /tmp/models:/models
-    networks:
-      - my-bridge
-
-networks:
-  my-bridge:
-    driver: bridge
-```
-
-将该文件拷贝到装有docker的服务器上面，运行`docker-compose up -d`启动相关的服务
-
-![](https://aliyun.hellozjf.com:7004/uploads/2019/4/3/menu.saveimg.savepath20190403142827.jpg)
-
-上面的配置文件中，我只配置了三个mleap服务，如果需要部署多于三个mleap的服务，可以再增加mleap4、mleap5、……
-
-<font color="#2db7f5">目前我已经将服务部署在192.168.2.150上面了，所以下面就以192.168.2.150来演示如何使用。</font>
+4. 使用`docker-compose up -d`开启容器，如果遇到端口冲突，修改`docker-compose.yml`文件中的8081端口为任意未被占用的端口。使用`docker-compose down`删除容器。
 
 # 使用
 
@@ -72,7 +74,13 @@ RestTemplate代码实现参见test包下面的`SwModelTest`和`YythModelTest`
 
 ![](https://aliyun.hellozjf.com:7004/uploads/2019/4/3/menu.saveimg.savepath20190403142127.jpg)
 
+## 问题
 
+<font color="#ed4014">目前不支持重启后自动加载模型，因此重启过docker容器需要重新上传模型</font>
+
+# 程序源码
+
+[https://github.com/hellozjf/mleap-controller.git](https://github.com/hellozjf/mleap-controller.git)
 
 # 版本说明
 
