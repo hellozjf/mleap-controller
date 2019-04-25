@@ -2,13 +2,11 @@ package com.zrar.tools.mleapcontroller.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.zrar.tools.mleapcontroller.constant.ResultEnum;
-import com.zrar.tools.mleapcontroller.exception.MLeapException;
+import com.zrar.tools.mleapcontroller.entity.MLeapEntity;
+import com.zrar.tools.mleapcontroller.repository.MLeapRepository;
 import com.zrar.tools.mleapcontroller.service.MLeapService;
-import com.zrar.tools.mleapcontroller.util.JsonUtils;
 import com.zrar.tools.mleapcontroller.util.ResultUtils;
-import com.zrar.tools.mleapcontroller.util.WordUtils;
 import com.zrar.tools.mleapcontroller.vo.ResultVO;
 import com.zrar.tools.mleapcontroller.vo.TaxClassifyPredictVO;
 import lombok.extern.slf4j.Slf4j;
@@ -36,8 +34,12 @@ public class MLeapController {
     @Autowired
     private MLeapService mLeapService;
 
+    @Autowired
+    private MLeapRepository mLeapRepository;
+
     /**
      * 接收一个模型文件，让它上线
+     * 实际上调用mleap的PUT /model方法
      *
      * @param multipartFile
      * @return
@@ -72,7 +74,18 @@ public class MLeapController {
 
         // 让模型上线
         try {
-            return ResultUtils.success(mLeapService.online(mleap, file));
+            String result = mLeapService.online(mleap, file);
+
+            // 将更新或添加模型数据到数据库中
+            MLeapEntity mLeapEntity = mLeapRepository.findByMleapName(mleap);
+            if (mLeapEntity == null) {
+                mLeapEntity = new MLeapEntity();
+                mLeapEntity.setMleapName(mleap);
+            }
+            mLeapEntity.setModelPath(file.getAbsolutePath());
+            mLeapRepository.save(mLeapEntity);
+
+            return ResultUtils.success(result);
         } catch (Exception e) {
             log.error("e = {}", e);
             return ResultUtils.error(ResultEnum.MODEL_ONLINE_FAILED);
@@ -81,16 +94,23 @@ public class MLeapController {
 
     /**
      * 让模型下线
+     * 实际上调用mleap的DELETE /model方法
      *
      * @return
      */
     @PostMapping("/{mleap}/offlineModel")
     public ResultVO offlineModel(@PathVariable("mleap") String mleap) {
-        return ResultUtils.success(mLeapService.offline(mleap));
+        String result = mLeapService.offline(mleap);
+
+        // 将模型数据移出数据库
+        mLeapRepository.deleteAllByMleapName(mleap);
+
+        return ResultUtils.success(result);
     }
 
     /**
      * 调用模型，返回预测结果
+     * 实际上调用mleap的POST /transform方法
      *
      * @param data
      * @return
@@ -117,21 +137,6 @@ public class MLeapController {
      */
     @PostMapping("/{mleap}/predict")
     public ResultVO predict(@PathVariable("mleap") String mleap,
-                            @RequestBody String line,
-                            @RequestParam(defaultValue = "") String nature) {
-        TaxClassifyPredictVO taxClassifyPredictVO = mLeapService.predict(mleap, line, nature);
-        return ResultUtils.success(taxClassifyPredictVO);
-    }
-
-    /**
-     * 预测某句话的分类，以及这个分类的可信度
-     *
-     * @param mleap
-     * @param line
-     * @return
-     */
-    @PostMapping("/{mleap}/rawPredict")
-    public ResultVO rawPredict(@PathVariable("mleap") String mleap,
                             @RequestBody String line,
                             @RequestParam(defaultValue = "") String nature) {
         TaxClassifyPredictVO taxClassifyPredictVO = mLeapService.predict(mleap, line, nature);

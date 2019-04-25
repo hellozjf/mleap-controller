@@ -8,6 +8,7 @@ ADD target/${JAR_FILE}  /app/app.jar
 # Add application.properties
 ADD src/main/resources/application.properties   /app/application.properties
 
+VOLUME /app
 VOLUME /models
 EXPOSE 8080
 

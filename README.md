@@ -33,6 +33,22 @@
         networks:
           - my-bridge
     
+      mleap4:
+        image: combustml/mleap-serving:0.9.0-SNAPSHOT
+        restart: unless-stopped
+        volumes:
+          - /tmp/models:/models
+        networks:
+          - my-bridge
+    
+      mleap5:
+        image: combustml/mleap-serving:0.9.0-SNAPSHOT
+        restart: unless-stopped
+        volumes:
+          - /tmp/models:/models
+        networks:
+          - my-bridge
+    
       mleap-controller:
         image: hellozjf/mleap-controller:1.0.2
         restart: unless-stopped
@@ -48,7 +64,7 @@
         driver: bridge
     ```
 
-    这个文件中只能同时使用3个模型，需要使用更多请自行在`docker-compose.yml`后面增加mleap4、mleap5……
+    这个文件中只能同时使用5个模型，需要使用更多请自行在`docker-compose.yml`后面增加mleap6、mleap7……
 
 4. 使用`docker-compose up -d`开启容器，如果遇到端口冲突，修改`docker-compose.yml`文件中的8081端口为任意未被占用的端口。使用`docker-compose down`删除容器。
 
@@ -74,19 +90,16 @@ RestTemplate代码实现参见test包下面的`SwModelTest`和`YythModelTest`
 
 ![](https://aliyun.hellozjf.com:7004/uploads/2019/4/3/menu.saveimg.savepath20190403142127.jpg)
 
-## 问题
-
-<font color="#ed4014">目前不支持重启后自动加载模型，因此重启过docker容器需要重新上传模型</font>
-
 # 程序源码
 
 [https://github.com/hellozjf/mleap-controller.git](https://github.com/hellozjf/mleap-controller.git)
 
 # 版本说明
 
-| 版本  | 内容                                                   |
-| ----- | ------------------------------------------------------ |
-| 1.0.2 | 修复一个bug，predict既要返回分类序号，也要返回分类名称 |
-| 1.0.1 | 补充代码，调通陈晓曦的模型yythModel.zip                |
-| 1.0.0 | 初始版本，调通林镇杰的模型swModel.zip                  |
+| 版本  | 内容                                                         |
+| ----- | ------------------------------------------------------------ |
+| 1.0.3 | 增加了数据库，以便重启后能自动加载模型，同时更新了qgfxModel.zip |
+| 1.0.2 | 修复一个bug，predict既要返回分类序号，也要返回分类名称       |
+| 1.0.1 | 补充代码，调通陈晓曦的模型yythModel.zip                      |
+| 1.0.0 | 初始版本，调通林镇杰的模型swModel.zip                        |
 
