@@ -13,7 +13,7 @@
         image: combustml/mleap-serving:0.9.0-SNAPSHOT
         restart: unless-stopped
         volumes:
-          - /tmp/models:/models
+          - /opt/models:/models
         networks:
           - my-bridge
     
@@ -21,7 +21,7 @@
         image: combustml/mleap-serving:0.9.0-SNAPSHOT
         restart: unless-stopped
         volumes:
-          - /tmp/models:/models
+          - /opt/models:/models
         networks:
           - my-bridge
     
@@ -29,7 +29,7 @@
         image: combustml/mleap-serving:0.9.0-SNAPSHOT
         restart: unless-stopped
         volumes:
-          - /tmp/models:/models
+          - /opt/models:/models
         networks:
           - my-bridge
     
@@ -37,25 +37,25 @@
         image: combustml/mleap-serving:0.9.0-SNAPSHOT
         restart: unless-stopped
         volumes:
-          - /tmp/models:/models
+        - /opt/models:/models
         networks:
-          - my-bridge
+        - my-bridge
     
       mleap5:
         image: combustml/mleap-serving:0.9.0-SNAPSHOT
         restart: unless-stopped
         volumes:
-          - /tmp/models:/models
+        - /opt/models:/models
         networks:
-          - my-bridge
+        - my-bridge
     
       mleap-controller:
-        image: hellozjf/mleap-controller:1.0.2
+        image: hellozjf/mleap-controller:1.0.3
         restart: unless-stopped
         ports:
           - 8081:8080
         volumes:
-          - /tmp/models:/models
+          - /opt/models:/models
         networks:
           - my-bridge
     
@@ -76,7 +76,17 @@ RestTemplate代码实现参见test包下面的`SwModelTest`和`YythModelTest`
 
 ![](https://aliyun.hellozjf.com:7004/uploads/2019/4/3/menu.saveimg.savepath20190403141620.jpg)
 
-注意：上传的时候可能会失败，如果失败了请删除服务器上面/tmp/models下面的模型，重新上传一边
+注意：上传的时候可能会失败，如果失败了请删除服务器上面/opt/models下面的模型，重新上传一边
+
+目前在`test/resources`下面有三个模型，它们分别是
+
+| 模型名称      | 模型含义 |
+| ------------- | -------- |
+| swModel.zip   | 税务模型 |
+| yythModel.zip | 语音通话 |
+| qgfxModel.zip | 情感分析 |
+
+
 
 ## 预测模型
 
@@ -93,6 +103,12 @@ RestTemplate代码实现参见test包下面的`SwModelTest`和`YythModelTest`
 # 程序源码
 
 [https://github.com/hellozjf/mleap-controller.git](https://github.com/hellozjf/mleap-controller.git)
+
+## 源码部署到docker
+
+`mvn clean install`，将工程打包，构造docker镜像，并上传到aliyun.hellozjf.com的docker仓库中
+
+`mvn clean deploy`，将工程打包，构造docker镜像，并上传到docker中央仓库中
 
 # 版本说明
 

@@ -4,31 +4,51 @@ services:
 
   mleap1:
     image: combustml/mleap-serving:0.9.0-SNAPSHOT
+    restart: unless-stopped
     volumes:
-      - /tmp/models:/models
+      - /opt/models:/models
     networks:
       - my-bridge
 
   mleap2:
     image: combustml/mleap-serving:0.9.0-SNAPSHOT
+    restart: unless-stopped
     volumes:
-      - /tmp/models:/models
+      - /opt/models:/models
     networks:
       - my-bridge
 
   mleap3:
     image: combustml/mleap-serving:0.9.0-SNAPSHOT
+    restart: unless-stopped
     volumes:
-      - /tmp/models:/models
+      - /opt/models:/models
     networks:
       - my-bridge
 
-  mleap-controller:
-    image: hellozjf/mleap-controller:1.0.1
-    ports:
-      - 8080:8080
+  mleap4:
+    image: combustml/mleap-serving:0.9.0-SNAPSHOT
+    restart: unless-stopped
     volumes:
-      - /tmp/models:/models
+    - /opt/models:/models
+    networks:
+    - my-bridge
+
+  mleap5:
+    image: combustml/mleap-serving:0.9.0-SNAPSHOT
+    restart: unless-stopped
+    volumes:
+    - /opt/models:/models
+    networks:
+    - my-bridge
+
+  mleap-controller:
+    image: hellozjf/mleap-controller:1.0.3
+    restart: unless-stopped
+    ports:
+      - 8081:8080
+    volumes:
+      - /opt/models:/models
     networks:
       - my-bridge
 
