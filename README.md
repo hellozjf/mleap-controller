@@ -46,7 +46,7 @@
 2. 确保安装了docker-compose工具，使用`docker-compose --version`查看是否已经安装了docker-compose，如果没有安装，请参考 [https://docs.docker.com/compose/install/](https://docs.docker.com/compose/install/) 安装docker-compose
     具体步骤是运行`curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose`，然后再运行`chmod +x /usr/local/bin/docker-compose`
 
-3. 首先在服务器192.168.2.149上面修改`/etc/docker/daemon.json`文件，将其内容更改为`{"insecure-registries": ["192.168.2.150"]}`，使用`systemctl restart docker`重启服务
+3. 首先在服务器192.168.2.149上面修改`/etc/docker/daemon.json`文件，将其内容更改为`{"insecure-registries": ["192.168.2.150"]}`，使用`systemctl restart docker`重启服务，这样做的目的是能够通过http协议从harbor服务器上面拉取镜像。
     在服务器192.168.2.149的`/opt/docker`目录下新建一个文件夹mleap，然后在文件夹下面新建一个`docker-compose.yml`文件，内容为
 
     ```
@@ -192,6 +192,8 @@ docker push 192.168.2.150/zrar/mleap-controller:1.0.3
 ```
 
 ## 从仓库中下载镜像
+
+拉取前确保`/etc/docker/daemon.json`文件的内容为`{"insecure-registries": ["192.168.2.150"]}`
 
 ```
 docker pull 192.168.2.150/zrar/mleap-serving:0.9.0-SNAPSHOT
