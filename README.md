@@ -1,8 +1,53 @@
 # 安装
 
 1. 确保安装了docker，使用`docker --version`查看是否已经安装docker，如果没有安装，请参考 [https://docs.docker.com/install/linux/docker-ce/centos/](https://docs.docker.com/install/linux/docker-ce/centos/) 安装docker
+    具体步骤是运行
+
+    ```
+    yum install -y yum-utils \
+      device-mapper-persistent-data \
+      lvm2
+    ```
+
+    再运行
+
+    ```
+    yum-config-manager \
+        --add-repo \
+        https://download.docker.com/linux/centos/docker-ce.repo
+    ```
+
+    再运行
+
+    ```
+    yum install docker-ce docker-ce-cli containerd.io
+    ```
+
+    再运行
+
+    ```
+    systemctl start docker
+    systemctl enable docker
+    ```
+
+    此外要确保防火墙已经关闭，SELinux已经关闭
+
+    ```
+    systemctl stop firewalld
+    systemctl disable firewalld
+    
+    # 编辑/etc/selinux/config，设置SELINUX=disabled
+    ```
+
+    最后运行`docker run hello-world`，如果正常输出表示docker安装成功
+
+    如果出现linux内核报错的话，则需要升级一下内核，参考文档[https://www.cnblogs.com/sexiaoshuai/p/8399599.html](https://www.cnblogs.com/sexiaoshuai/p/8399599.html)
+
 2. 确保安装了docker-compose工具，使用`docker-compose --version`查看是否已经安装了docker-compose，如果没有安装，请参考 [https://docs.docker.com/compose/install/](https://docs.docker.com/compose/install/) 安装docker-compose
-3. 在服务器任意位置新建一个文件夹，然后在文件夹下面新建一个`docker-compose.yml`文件，内容为
+    具体步骤是运行`curl -L "https://github.com/docker/compose/releases/download/1.24.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose`，然后再运行`chmod +x /usr/local/bin/docker-compose`
+
+3. 首先在服务器192.168.2.149上面修改`/etc/docker/daemon.json`文件，将其内容更改为`{"insecure-registries": ["192.168.2.150"]}`，使用`systemctl restart docker`重启服务
+    在服务器192.168.2.149的`/opt/docker`目录下新建一个文件夹mleap，然后在文件夹下面新建一个`docker-compose.yml`文件，内容为
 
     ```
     version: '3'
@@ -10,7 +55,7 @@
     services:
     
       mleap1:
-        image: combustml/mleap-serving:0.9.0-SNAPSHOT
+        image: 192.168.2.150/zrar/mleap-serving:0.9.0-SNAPSHOT
         restart: unless-stopped
         volumes:
           - /opt/models:/models
@@ -18,7 +63,7 @@
           - my-bridge
     
       mleap2:
-        image: combustml/mleap-serving:0.9.0-SNAPSHOT
+        image: 192.168.2.150/zrar/mleap-serving:0.9.0-SNAPSHOT
         restart: unless-stopped
         volumes:
           - /opt/models:/models
@@ -26,7 +71,7 @@
           - my-bridge
     
       mleap3:
-        image: combustml/mleap-serving:0.9.0-SNAPSHOT
+        image: 192.168.2.150/zrar/mleap-serving:0.9.0-SNAPSHOT
         restart: unless-stopped
         volumes:
           - /opt/models:/models
@@ -34,7 +79,7 @@
           - my-bridge
     
       mleap4:
-        image: combustml/mleap-serving:0.9.0-SNAPSHOT
+        image: 192.168.2.150/zrar/mleap-serving:0.9.0-SNAPSHOT
         restart: unless-stopped
         volumes:
         - /opt/models:/models
@@ -42,7 +87,7 @@
         - my-bridge
     
       mleap5:
-        image: combustml/mleap-serving:0.9.0-SNAPSHOT
+        image: 192.168.2.150/zrar/mleap-serving:0.9.0-SNAPSHOT
         restart: unless-stopped
         volumes:
         - /opt/models:/models
@@ -50,7 +95,7 @@
         - my-bridge
     
       mleap-controller:
-        image: hellozjf/mleap-controller:1.0.3
+        image: 192.168.2.150/zrar/mleap-controller:1.0.3
         restart: unless-stopped
         ports:
           - 8081:8080
@@ -88,6 +133,16 @@ RestTemplate代码实现参见test包下面的`SwModelTest`和`YythModelTest`
 
 
 
+## 查看模型对应的路径
+
+访问[http://192.168.2.149:8081/h2](http://192.168.2.149:8081/h2)，修改`JDBC URL`为`jdbc:h2:file:/app/mleap`，修改`User Name`为`root`，修改`Password`为`123456`，点击连接
+
+![](https://aliyun.hellozjf.com:7004/uploads/2019/4/29/{AE3900F1-3C18-4934-8DFC-12260F917993}_20190429104356.jpg)
+
+然后在SQL执行窗口中输入`SELECT * FROM MLEAP_ENTITY `，点击`Run`，之后即可查看模型对应的路径
+
+![](https://aliyun.hellozjf.com:7004/uploads/2019/4/29/{3517F9FA-3771-4C00-80C2-D034129906E7}_20190429104502.jpg)
+
 ## 预测模型
 
 <font color="#ff9900">注意，上传模型使用的url，需要和预测模型使用的url保持一致。</font>例如上传时用了`mleap1`，那么预测的时候也要使用`mleap1`
@@ -109,6 +164,39 @@ RestTemplate代码实现参见test包下面的`SwModelTest`和`YythModelTest`
 `mvn clean install`，将工程打包，构造docker镜像，并上传到aliyun.hellozjf.com的docker仓库中
 
 `mvn clean deploy`，将工程打包，构造docker镜像，并上传到docker中央仓库中
+
+# Harbor仓库相关
+
+## 上传镜像到Harbor仓库
+
+harbor位于192.168.2.150上面，我们先在192.168.2.150上面登录以便后续能够上传
+
+```
+docker login 192.168.2.150
+```
+
+确保192.168.2.150上面有需要发布的镜像
+
+```
+docker pull combustml/mleap-serving:0.9.0-SNAPSHOT
+docker pull hellozjf/mleap-controller:1.0.3
+```
+
+给需要发布的镜像打tag，并上传到harbor
+
+```
+docker tag combustml/mleap-serving:0.9.0-SNAPSHOT 192.168.2.150/zrar/mleap-serving:0.9.0-SNAPSHOT
+docker tag hellozjf/mleap-controller:1.0.3 192.168.2.150/zrar/mleap-controller:1.0.3
+docker push 192.168.2.150/zrar/mleap-serving:0.9.0-SNAPSHOT
+docker push 192.168.2.150/zrar/mleap-controller:1.0.3
+```
+
+## 从仓库中下载镜像
+
+```
+docker pull 192.168.2.150/zrar/mleap-serving:0.9.0-SNAPSHOT
+docker pull 192.168.2.150/zrar/mleap-controller:1.0.3
+```
 
 # 版本说明
 
