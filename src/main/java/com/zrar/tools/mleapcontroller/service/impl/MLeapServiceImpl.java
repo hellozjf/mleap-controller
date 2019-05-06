@@ -9,6 +9,7 @@ import com.zrar.tools.mleapcontroller.constant.ResultEnum;
 import com.zrar.tools.mleapcontroller.dto.Indexes;
 import com.zrar.tools.mleapcontroller.exception.MLeapException;
 import com.zrar.tools.mleapcontroller.service.MLeapService;
+import com.zrar.tools.mleapcontroller.service.NetworkService;
 import com.zrar.tools.mleapcontroller.util.JsonUtils;
 import com.zrar.tools.mleapcontroller.util.ResultUtils;
 import com.zrar.tools.mleapcontroller.util.WordUtils;
@@ -38,6 +39,9 @@ public class MLeapServiceImpl implements MLeapService {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private NetworkService networkService;
 
     @Override
     public String online(String mleap, File file) {

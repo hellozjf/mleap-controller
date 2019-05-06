@@ -1,0 +1,154 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Getting Started: Serving Web Content</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="stylesheet" href="css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="css/bootstrap-table.min.css"/>
+    <style>
+        #loading {
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            position: fixed;
+            display: block;
+            opacity: 0.7;
+            background-color: #fff;
+            z-index: 99;
+            text-align: center;
+        }
+
+        #loading-image {
+            position: absolute;
+            top: 35%;
+            left: 40%;
+            z-index: 100;
+        }
+    </style>
+</head>
+<body>
+<table data-toggle="table">
+    <thead>
+    <tr>
+        <th>URL</th>
+        <th>文件名</th>
+        <th>文件大小</th>
+        <th>文件上传日期</th>
+        <th>上线</th>
+        <th>测试</th>
+        <th>下线</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="mleap: ${mleapFileVOList}">
+        <td th:text="${mleap.getUrl()}"></td>
+        <td th:text="${mleap.getFileName()}"></td>
+        <td th:text="${mleap.getFileSize()}"></td>
+        <td th:text="${mleap.getFileDate()}"></td>
+        <td>
+            <input type="file" name="file">
+            <input type="button" onclick="online(this)" value="上线">
+        </td>
+        <td>
+            <input type="text" th:value="'自然人税收管理系统扣缴客户端，导出的劳务报酬所得，一般劳务报酬所得填写什么？'">
+            <input type="button" onclick="test(this)" value="测试">
+        </td>
+        <td>
+            <input type="button" onclick="offline(this)" value="下线">
+        </td>
+    </tr>
+    </tbody>
+</table>
+<div id="loading">
+    <img id="loading-image" src="img/loading.gif" alt="Loading..." />
+</div>
+
+<script src="js/jquery.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/bootstrap-table.min.js"></script>
+<script>
+
+    $(function(){
+        $('#loading').hide();
+    });
+
+    function online(input) {
+        $('#loading').show();
+        var mleap = $(input).parent().parent().children('td:first').text();
+        var data = new FormData();
+        data.append('file', $(input).parent().children('input:first')[0].files[0]);
+        $.ajax({
+            url: mleap + '/onlineModel',
+            data: data,
+            method: 'POST',
+            processData: false,
+            contentType: false,
+            dataType: 'json',
+            success: function (data) {
+                console.debug(data);
+                if (data.code === 0) {
+                    alert('模型上线成功');
+                    window.location.reload();
+                } else {
+                    alert('模型上线失败，失败原因：' + data.msg);
+                    window.location.reload();
+                }
+            },
+            complete: function () {
+                $('#loading').hide();
+            }
+        });
+    }
+
+    function test(input) {
+        $('#loading').show();
+        var mleap = $(input).parent().parent().children('td:first').text();
+        var data = $(input).parent().children('input:first').val();
+        $.ajax({
+            url: mleap + '/predict',
+            data: data,
+            method: 'POST',
+            contentType: 'text/plain',
+            dataType: 'json',
+            success: function (data) {
+                console.debug(data);
+                if (data.code === 0) {
+                    alert('成功！' + JSON.stringify(data.data));
+                    window.location.reload();
+                } else {
+                    alert('失败，失败原因：' + data.msg);
+                    window.location.reload();
+                }
+            },
+            complete: function () {
+                $('#loading').hide();
+            }
+        });
+    }
+
+    function offline(input) {
+        $('#loading').show();
+        var mleap = $(input).parent().parent().children('td:first').text();
+        $.ajax({
+            url: mleap + '/offlineModel',
+            method: 'POST',
+            dataType: 'json',
+            success: function (data) {
+                console.debug(data);
+                if (data.code === 0) {
+                    alert('模型下线成功');
+                    window.location.reload();
+                } else {
+                    alert('模型下线失败，失败原因：' + data.msg);
+                    window.location.reload();
+                }
+            },
+            complete: function () {
+                $('#loading').hide();
+            }
+        });
+    }
+</script>
+</body>
+</html>

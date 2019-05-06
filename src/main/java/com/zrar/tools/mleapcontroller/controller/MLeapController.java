@@ -48,6 +48,8 @@ public class MLeapController {
     public ResultVO onlineModel(@PathVariable("mleap") String mleap,
                                 @RequestParam("file") MultipartFile multipartFile) {
 
+        log.debug("mleap = {}, file = {}", mleap, multipartFile);
+
         // 判断上传过来的文件是不是空的
         if (multipartFile.isEmpty()) {
             return ResultUtils.error(ResultEnum.FILE_CAN_NOT_BE_EMPTY);
@@ -65,11 +67,28 @@ public class MLeapController {
             if (!folder.exists()) {
                 folder.mkdirs();
             }
+            // 如果目标文件存在，删除它
+            if (file.exists()) {
+                file.delete();
+            }
             // 然后把文件保存下来
-            IOUtils.copy(new ByteArrayInputStream(data), new FileOutputStream(file));
+            try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(data);
+                 FileOutputStream fileOutputStream = new FileOutputStream(file)) {
+
+                IOUtils.copy(byteArrayInputStream, fileOutputStream);
+            } catch (IOException e) {
+                log.error("e = {}", e);
+                if (file.exists()) {
+                    file.delete();
+                }
+                return ResultUtils.error(ResultEnum.FILE_IS_WRONG.getCode(), e.getMessage());
+            }
         } catch (IOException e) {
             log.error("e = {}", e);
-            return ResultUtils.error(ResultEnum.FILE_IS_WRONG);
+            if (file.exists()) {
+                file.delete();
+            }
+            return ResultUtils.error(ResultEnum.FILE_IS_WRONG.getCode(), e.getMessage());
         }
 
         // 让模型上线
@@ -88,7 +107,10 @@ public class MLeapController {
             return ResultUtils.success(result);
         } catch (Exception e) {
             log.error("e = {}", e);
-            return ResultUtils.error(ResultEnum.MODEL_ONLINE_FAILED);
+            if (file.exists()) {
+                file.delete();
+            }
+            return ResultUtils.error(ResultEnum.MODEL_ONLINE_FAILED.getCode(), e.getMessage());
         }
     }
 
@@ -102,8 +124,15 @@ public class MLeapController {
     public ResultVO offlineModel(@PathVariable("mleap") String mleap) {
         String result = mLeapService.offline(mleap);
 
-        // 将模型数据移出数据库
-        mLeapRepository.deleteAllByMleapName(mleap);
+        MLeapEntity mLeapEntity = mLeapRepository.findByMleapName(mleap);
+        if (mLeapEntity != null) {
+            // 删除数据库记录，同时删除模型文件
+            mLeapRepository.deleteById(mLeapEntity.getId());
+            File file = new File(mLeapEntity.getModelPath());
+            if (file.exists()) {
+                file.delete();
+            }
+        }
 
         return ResultUtils.success(result);
     }
@@ -124,7 +153,7 @@ public class MLeapController {
             return ResultUtils.success(objectNode);
         } catch (IOException e) {
             log.error("e = {}", e);
-            return ResultUtils.error(ResultEnum.INVOKE_FAILED);
+            return ResultUtils.error(ResultEnum.INVOKE_FAILED.getCode(), e.getMessage());
         }
     }
 

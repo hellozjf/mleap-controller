@@ -8,5 +8,4 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface MLeapRepository extends JpaRepository<MLeapEntity, String> {
     MLeapEntity findByMleapName(String mleapName);
-    void deleteAllByMleapName(String mleapName);
 }

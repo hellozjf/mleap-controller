@@ -3,7 +3,7 @@ version: '3'
 services:
 
   mleap1:
-    image: combustml/mleap-serving:0.9.0-SNAPSHOT
+    image: 192.168.2.150/zrar/mleap-serving:0.9.0-SNAPSHOT
     restart: unless-stopped
     volumes:
       - /opt/models:/models
@@ -11,7 +11,7 @@ services:
       - my-bridge
 
   mleap2:
-    image: combustml/mleap-serving:0.9.0-SNAPSHOT
+    image: 192.168.2.150/zrar/mleap-serving:0.9.0-SNAPSHOT
     restart: unless-stopped
     volumes:
       - /opt/models:/models
@@ -19,7 +19,7 @@ services:
       - my-bridge
 
   mleap3:
-    image: combustml/mleap-serving:0.9.0-SNAPSHOT
+    image: 192.168.2.150/zrar/mleap-serving:0.9.0-SNAPSHOT
     restart: unless-stopped
     volumes:
       - /opt/models:/models
@@ -27,7 +27,7 @@ services:
       - my-bridge
 
   mleap4:
-    image: combustml/mleap-serving:0.9.0-SNAPSHOT
+    image: 192.168.2.150/zrar/mleap-serving:0.9.0-SNAPSHOT
     restart: unless-stopped
     volumes:
     - /opt/models:/models
@@ -35,7 +35,7 @@ services:
     - my-bridge
 
   mleap5:
-    image: combustml/mleap-serving:0.9.0-SNAPSHOT
+    image: 192.168.2.150/zrar/mleap-serving:0.9.0-SNAPSHOT
     restart: unless-stopped
     volumes:
     - /opt/models:/models
@@ -43,7 +43,7 @@ services:
     - my-bridge
 
   mleap-controller:
-    image: hellozjf/mleap-controller:1.0.3
+    image: 192.168.2.150/zrar/mleap-controller:1.0.4
     restart: unless-stopped
     ports:
       - 8081:8080

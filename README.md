@@ -95,7 +95,7 @@
         - my-bridge
     
       mleap-controller:
-        image: 192.168.2.150/zrar/mleap-controller:1.0.3
+        image: 192.168.2.150/zrar/mleap-controller:1.0.4
         restart: unless-stopped
         ports:
           - 8081:8080
@@ -113,7 +113,25 @@
 
 4. 使用`docker-compose up -d`开启容器，如果遇到端口冲突，修改`docker-compose.yml`文件中的8081端口为任意未被占用的端口。使用`docker-compose down`删除容器。
 
-# 使用
+# 通过Web界面使用（1.0.4及以后）
+
+访问[ip]:8081
+
+![](https://aliyun.hellozjf.com:7004/uploads/2019/5/6/{C0D5C297-E6A2-465E-9958-A698BE76C1F4}_20190506163949.jpg)
+
+## 上传模型
+
+首先选择模型文件，然后点击上线，上线成功之后会有提示
+
+## 预测模型
+
+将待预测的文本写到输入框中，点击测试，之后会有测试结果
+
+## 下线模型
+
+点击下线按钮
+
+# 通过Postman使用（1.0.3及以前）
 
 RestTemplate代码实现参见test包下面的`SwModelTest`和`YythModelTest`
 
@@ -161,13 +179,32 @@ RestTemplate代码实现参见test包下面的`SwModelTest`和`YythModelTest`
 
 ## 源码部署到docker
 
-`mvn clean install`，将工程打包，构造docker镜像，并上传到aliyun.hellozjf.com的docker仓库中
+想要源码部署到docker首先需要做以下两步
 
-`mvn clean deploy`，将工程打包，构造docker镜像，并上传到docker中央仓库中
+1. 自己电脑，DOCKER_HOST设置为`tcp://192.168.56.111:2376`，将192.168.56.111设置为自己的虚拟机IP地址
+
+2. 进入192.168.56.111，编辑`/etc/systemd/system/multi-user.target.wants/docker.service`，改成`ExecStart=/usr/bin/dockerd`，然后编辑`/etc/docker/daemon.json`，修改为
+
+   ```
+   {
+     "hosts": ["tcp://0.0.0.0:2376","unix:///var/run/docker.sock"],
+     "insecure-registries": ["192.168.2.150"]
+   }
+   ```
+
+
+
+之后就能在自己的IDEA里面使用下面命令构造和上传docker镜像了
+
+`mvn clean install`，将工程打包，构造docker镜像，并上传到虚拟机192.168.56.111的docker仓库中
+
+`mvn clean deploy`，将工程打包，构造docker镜像，并上传到docker研发中心仓库192.168.2.150中
 
 # Harbor仓库相关
 
 ## 上传镜像到Harbor仓库
+
+其实通过`mvn clean install`已经能够将mleap-controller的镜像上传到研发中心的docker仓库了，下面介绍手动上传的办法。
 
 harbor位于192.168.2.150上面，我们先在192.168.2.150上面登录以便后续能够上传
 
@@ -179,16 +216,16 @@ docker login 192.168.2.150
 
 ```
 docker pull combustml/mleap-serving:0.9.0-SNAPSHOT
-docker pull hellozjf/mleap-controller:1.0.3
+docker pull hellozjf/mleap-controller:1.0.4
 ```
 
 给需要发布的镜像打tag，并上传到harbor
 
 ```
 docker tag combustml/mleap-serving:0.9.0-SNAPSHOT 192.168.2.150/zrar/mleap-serving:0.9.0-SNAPSHOT
-docker tag hellozjf/mleap-controller:1.0.3 192.168.2.150/zrar/mleap-controller:1.0.3
+docker tag hellozjf/mleap-controller:1.0.4 192.168.2.150/zrar/mleap-controller:1.0.4
 docker push 192.168.2.150/zrar/mleap-serving:0.9.0-SNAPSHOT
-docker push 192.168.2.150/zrar/mleap-controller:1.0.3
+docker push 192.168.2.150/zrar/mleap-controller:1.0.4
 ```
 
 ## 从仓库中下载镜像
@@ -197,13 +234,14 @@ docker push 192.168.2.150/zrar/mleap-controller:1.0.3
 
 ```
 docker pull 192.168.2.150/zrar/mleap-serving:0.9.0-SNAPSHOT
-docker pull 192.168.2.150/zrar/mleap-controller:1.0.3
+docker pull 192.168.2.150/zrar/mleap-controller:1.0.4
 ```
 
 # 版本说明
 
 | 版本  | 内容                                                         |
 | ----- | ------------------------------------------------------------ |
+| 1.0.4 | 增加了上线、测试、下线模型的界面                             |
 | 1.0.3 | 增加了数据库，以便重启后能自动加载模型，同时更新了qgfxModel.zip |
 | 1.0.2 | 修复一个bug，predict既要返回分类序号，也要返回分类名称       |
 | 1.0.1 | 补充代码，调通陈晓曦的模型yythModel.zip                      |
