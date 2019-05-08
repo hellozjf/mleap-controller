@@ -30,28 +30,34 @@ services:
     image: 192.168.2.150/zrar/mleap-serving:0.9.0-SNAPSHOT
     restart: unless-stopped
     volumes:
-    - /opt/models:/models
+      - /opt/models:/models
     networks:
-    - my-bridge
+      - my-bridge
 
   mleap5:
     image: 192.168.2.150/zrar/mleap-serving:0.9.0-SNAPSHOT
     restart: unless-stopped
     volumes:
-    - /opt/models:/models
-    networks:
-    - my-bridge
-
-  mleap-controller:
-    image: 192.168.2.150/zrar/mleap-controller:1.0.4
-    restart: unless-stopped
-    ports:
-      - 8081:8080
-    volumes:
       - /opt/models:/models
     networks:
       - my-bridge
 
+  mleap-controller:
+    image: 192.168.2.150/zrar/mleap-controller:1.0.5
+    restart: unless-stopped
+    ports:
+      - 8083:8080
+    volumes:
+      - /opt/models:/models
+    networks:
+      - my-bridge
+    environment:
+      - TZ=Asia/Shanghai
+
 networks:
   my-bridge:
     driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.1.1.48/28

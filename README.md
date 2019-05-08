@@ -82,31 +82,38 @@
         image: 192.168.2.150/zrar/mleap-serving:0.9.0-SNAPSHOT
         restart: unless-stopped
         volumes:
-        - /opt/models:/models
+          - /opt/models:/models
         networks:
-        - my-bridge
+          - my-bridge
     
       mleap5:
         image: 192.168.2.150/zrar/mleap-serving:0.9.0-SNAPSHOT
         restart: unless-stopped
         volumes:
-        - /opt/models:/models
-        networks:
-        - my-bridge
-    
-      mleap-controller:
-        image: 192.168.2.150/zrar/mleap-controller:1.0.4
-        restart: unless-stopped
-        ports:
-          - 8081:8080
-        volumes:
           - /opt/models:/models
         networks:
           - my-bridge
     
+      mleap-controller:
+        image: 192.168.2.150/zrar/mleap-controller:1.0.5
+        restart: unless-stopped
+        ports:
+          - 8083:8080
+        volumes:
+          - /opt/models:/models
+        networks:
+          - my-bridge
+        environment:
+          - TZ=Asia/Shanghai
+    
     networks:
       my-bridge:
         driver: bridge
+        ipam:
+          driver: default
+          config:
+            - subnet: 10.1.1.48/28
+    
     ```
 
     这个文件中只能同时使用5个模型，需要使用更多请自行在`docker-compose.yml`后面增加mleap6、mleap7……
@@ -234,13 +241,14 @@ docker push 192.168.2.150/zrar/mleap-controller:1.0.4
 
 ```
 docker pull 192.168.2.150/zrar/mleap-serving:0.9.0-SNAPSHOT
-docker pull 192.168.2.150/zrar/mleap-controller:1.0.4
+docker pull 192.168.2.150/zrar/mleap-controller:1.0.5
 ```
 
 # 版本说明
 
 | 版本  | 内容                                                         |
 | ----- | ------------------------------------------------------------ |
+| 1.0.5 | 纠正mleap_controller的时区，docker-compose.yml规定网段，数据库文件存外部 |
 | 1.0.4 | 增加了上线、测试、下线模型的界面                             |
 | 1.0.3 | 增加了数据库，以便重启后能自动加载模型，同时更新了qgfxModel.zip |
 | 1.0.2 | 修复一个bug，predict既要返回分类序号，也要返回分类名称       |
