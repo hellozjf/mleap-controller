@@ -142,6 +142,7 @@ public class MLeapController {
      * 实际上调用mleap的POST /transform方法
      *
      * @param data
+     *      {"schema":{"fields":[{"name":"word","type":"string"}]},"rows":[["增值税 的 税率 是 多少"]]}
      * @return
      */
     @PostMapping("/{mleap}/invokeModel")
@@ -159,6 +160,8 @@ public class MLeapController {
 
     /**
      * 预测某句话的分类，以及这个分类的可信度
+     * predict实际上会发送
+     * {"schema":{"fields":[{"name":"word","type":"string"}]},"rows":[["增值税 的 税率 是 多少"]]}
      *
      * @param mleap
      * @param line
