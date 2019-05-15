@@ -150,11 +150,12 @@ RestTemplate代码实现参见test包下面的`SwModelTest`和`YythModelTest`
 
 目前在`test/resources`下面有三个模型，它们分别是
 
-| 模型名称      | 模型含义 |
-| ------------- | -------- |
-| swModel.zip   | 税务模型 |
-| yythModel.zip | 语音通话 |
-| qgfxModel.zip | 情感分析 |
+| 模型名称                | 模型含义     |
+| ----------------------- | ------------ |
+| swModel.zip             | 税务模型     |
+| yythModel.zip           | 语音通话     |
+| qgfxModel.zip           | 情感分析     |
+| QaSatClassification.zip | 税种分类模型 |
 
 
 
@@ -248,6 +249,7 @@ docker pull 192.168.2.150/zrar/mleap-controller:1.0.5
 
 | 版本  | 内容                                                         |
 | ----- | ------------------------------------------------------------ |
+| 1.0.6 | 增加税种分类模型                                             |
 | 1.0.5 | 纠正mleap_controller的时区，docker-compose.yml规定网段，数据库文件存外部 |
 | 1.0.4 | 增加了上线、测试、下线模型的界面                             |
 | 1.0.3 | 增加了数据库，以便重启后能自动加载模型，同时更新了qgfxModel.zip |

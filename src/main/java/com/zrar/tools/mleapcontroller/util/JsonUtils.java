@@ -85,7 +85,7 @@ public class JsonUtils {
                     indexes.setIndexProbability(i);
                 } else if (name.equalsIgnoreCase("predict") || name.equalsIgnoreCase("prediction")) {
                     indexes.setIndexPredict(i);
-                } else if (name.equalsIgnoreCase("mlType")) {
+                } else if (name.equalsIgnoreCase("mlType") || name.equalsIgnoreCase("predictedLabel")) {
                     indexes.setIndexMlType(i);
                 }
                 i++;
