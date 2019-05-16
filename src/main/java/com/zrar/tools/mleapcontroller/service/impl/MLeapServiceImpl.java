@@ -5,13 +5,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.zrar.tools.mleapcontroller.constant.CutMethodEnum;
 import com.zrar.tools.mleapcontroller.constant.ResultEnum;
 import com.zrar.tools.mleapcontroller.dto.Indexes;
+import com.zrar.tools.mleapcontroller.entity.MLeapEntity;
 import com.zrar.tools.mleapcontroller.exception.MLeapException;
+import com.zrar.tools.mleapcontroller.repository.MLeapRepository;
 import com.zrar.tools.mleapcontroller.service.MLeapService;
 import com.zrar.tools.mleapcontroller.service.NetworkService;
 import com.zrar.tools.mleapcontroller.util.JsonUtils;
-import com.zrar.tools.mleapcontroller.util.ResultUtils;
 import com.zrar.tools.mleapcontroller.util.WordUtils;
 import com.zrar.tools.mleapcontroller.vo.TaxClassifyPredictVO;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +44,9 @@ public class MLeapServiceImpl implements MLeapService {
 
     @Autowired
     private NetworkService networkService;
+
+    @Autowired
+    private MLeapRepository mLeapRepository;
 
     @Override
     public String online(String mleap, File file) {
@@ -103,15 +108,34 @@ public class MLeapServiceImpl implements MLeapService {
     @Override
     public List<TaxClassifyPredictVO> predict(String mleap, List<String> raws, String nature) {
 
+        MLeapEntity mLeapEntity = mLeapRepository.findByMleapName(mleap);
+
         // 切词
         List<String> wordCuts = new ArrayList<>();
         for (String raw : raws) {
-            String wordCut = WordUtils.wordCut(raw, nature);
+            String wordCut = null;
+            if (CutMethodEnum.WORD_CUT.getName().equalsIgnoreCase(mLeapEntity.getCutMethod())) {
+                log.debug("choose wordCut");
+                wordCut = WordUtils.wordCut(raw, nature);
+            } else if (CutMethodEnum.WORD_CUT_VSWZYC.getName().equalsIgnoreCase(mLeapEntity.getCutMethod())) {
+                log.debug("choose wordCut vswzyc");
+                wordCut = WordUtils.wordCut(raw, CutMethodEnum.WORD_CUT_VSWZYC.getNature());
+            } else if (CutMethodEnum.PHRASE_LIST.getName().equalsIgnoreCase(mLeapEntity.getCutMethod())) {
+                log.debug("choose phraseList");
+                wordCut = WordUtils.phraseList(raw);
+            } else {
+                log.error("未知切词方式：{}", wordCut);
+                // 将切词方式更新为wordCut
+                mLeapEntity.setCutMethod(CutMethodEnum.WORD_CUT.getName());
+                mLeapRepository.save(mLeapEntity);
+                wordCut = WordUtils.wordCut(raw, nature);
+            }
             wordCuts.add(wordCut);
         }
 
         // 构造请求体
         String queryString = JsonUtils.getQueryString(objectMapper, wordCuts);
+        log.debug("queryString = {}", queryString);
 
         // 预测模型
         String result = transform(mleap, queryString);

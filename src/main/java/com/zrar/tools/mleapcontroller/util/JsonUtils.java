@@ -32,14 +32,36 @@ public class JsonUtils {
     }
 
     /**
+     * 传入分词，返回请求mleap的字符串
+     * @param objectMapper
+     * @param wordCut
+     * @param name
+     * @return
+     */
+    public static String getQueryString(ObjectMapper objectMapper, String wordCut, String name) {
+        return getQueryString(objectMapper, Arrays.asList(wordCut), name);
+    }
+
+    /**
      * 传入分词数组，返回请求mleap的字符串
      * @param objectMapper
      * @param wordCuts
      * @return
      */
     public static String getQueryString(ObjectMapper objectMapper, List<String> wordCuts) {
+        return getQueryString(objectMapper, wordCuts, "word");
+    }
+
+    /**
+     * 传入分词数组，返回请求mleap的字符串
+     * @param objectMapper
+     * @param wordCuts
+     * @param name
+     * @return
+     */
+    public static String getQueryString(ObjectMapper objectMapper, List<String> wordCuts, String name) {
         ObjectNode field = objectMapper.createObjectNode();
-        field.put("name", "word");
+        field.put("name", name);
         field.put("type", "string");
         ArrayNode fields = objectMapper.createArrayNode();
         fields.add(field);

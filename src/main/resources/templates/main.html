@@ -35,6 +35,8 @@
         <th>文件名</th>
         <th>文件大小</th>
         <th>文件上传日期</th>
+        <th>切词方式</th>
+        <th>描述</th>
         <th>上线</th>
         <th>测试</th>
         <th>下线</th>
@@ -46,6 +48,8 @@
         <td th:text="${mleap.getFileName()}"></td>
         <td th:text="${mleap.getFileSize()}"></td>
         <td th:text="${mleap.getFileDate()}"></td>
+        <td th:text="${mleap.getCutMethod()}"></td>
+        <td th:text="${mleap.getDesc()}"></td>
         <td>
             <input type="file" name="file">
             <input type="button" onclick="online(this)" value="上线">

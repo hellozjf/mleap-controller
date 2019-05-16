@@ -18,6 +18,8 @@ public enum ResultEnum {
     MODEL_ONLINE_FAILED(7, "模型上线失败"),
     JSON_ERROR(8, "JSON错误"),
     PREDICT_ERROR(9, "预测错误"),
+    UNKNOWN_CUT_METHOD_ERROR(10, "未知切词方式"),
+    UNKNOWN_NAME_ERROR(11, "未知的Name字段"),
     ;
 
     Integer code;

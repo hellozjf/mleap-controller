@@ -47,4 +47,26 @@ public class WordUtils {
             return "null";
         }
     }
+
+    /**
+     * 切短语
+     * HanLP提取关键短语
+     * @author bigdata-陈晓曦
+     */
+    public static String phraseList(Object lineObject){
+        if(lineObject==null){
+            return "null";
+        }
+        String line = lineObject.toString();
+        List<String> phraseList = HanLP.extractPhrase(line, 10);
+        StringBuffer res = new StringBuffer("");
+        for(String i:phraseList){
+            res.append(i).append(" ");
+        }
+        if(res.length()>0){
+            return res.substring(0,res.length()-1);
+        }else {
+            return "null";
+        }
+    }
 }

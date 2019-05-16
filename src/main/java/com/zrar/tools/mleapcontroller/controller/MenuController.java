@@ -1,5 +1,6 @@
 package com.zrar.tools.mleapcontroller.controller;
 
+import com.zrar.tools.mleapcontroller.constant.CutMethodEnum;
 import com.zrar.tools.mleapcontroller.entity.MLeapEntity;
 import com.zrar.tools.mleapcontroller.repository.MLeapRepository;
 import com.zrar.tools.mleapcontroller.service.NetworkService;
@@ -66,6 +67,14 @@ public class MenuController {
                                 localDateTime.getMinute() + "分" +
                                 localDateTime.getSecond() + "秒";
                         mLeapFileVO.setFileDate(fileDate);
+                        // 查找分词方式
+                        for (CutMethodEnum cutMethodEnum : CutMethodEnum.values()) {
+                            if (cutMethodEnum.getName().equalsIgnoreCase(mLeapEntity.getCutMethod())) {
+                                mLeapFileVO.setCutMethod(cutMethodEnum.getDesc());
+                            }
+                        }
+                        // 模型描述
+                        mLeapFileVO.setDesc(mLeapEntity.getDesc());
                         return mLeapFileVO;
                     } else {
                         MLeapFileVO mLeapFileVO = new MLeapFileVO();

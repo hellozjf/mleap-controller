@@ -11,4 +11,6 @@ public class MLeapFileVO {
     private String fileName;
     private String fileSize;
     private String fileDate;
+    private String cutMethod;
+    private String desc;
 }
