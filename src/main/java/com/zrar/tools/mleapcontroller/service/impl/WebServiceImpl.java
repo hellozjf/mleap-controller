@@ -70,7 +70,8 @@ public class WebServiceImpl implements WebService {
                         // 查找分词方式
                         for (CutMethodEnum cutMethodEnum : CutMethodEnum.values()) {
                             if (cutMethodEnum.getName().equalsIgnoreCase(mLeapEntity.getCutMethod())) {
-                                mLeapFileVO.setCutMethod(cutMethodEnum.getDesc());
+                                mLeapFileVO.setCutMethod(cutMethodEnum.getName());
+                                mLeapFileVO.setCutMethodName(cutMethodEnum.getDesc());
                             }
                         }
                         // 模型描述

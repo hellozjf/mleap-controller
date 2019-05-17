@@ -37,6 +37,7 @@
         <th data-options="field:'desc', width:100, editor:'textbox'">模型描述</th>
         <th data-options="field:'cutMethod', width:200,
             formatter:function(value,row){
+                console.debug('row.cutMethodName=' + row.cutMethodName);
                 return row.cutMethodName;
             },
             editor:{
