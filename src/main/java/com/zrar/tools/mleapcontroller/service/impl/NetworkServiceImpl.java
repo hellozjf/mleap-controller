@@ -44,7 +44,7 @@ public class NetworkServiceImpl implements NetworkService {
             reachable = address.isReachable(1000);
             log.debug("reachable = {}", reachable);
         } catch (Exception e) {
-            log.error("e = {}", e);
+            // 说明不可达
         }
         return reachable;
     }

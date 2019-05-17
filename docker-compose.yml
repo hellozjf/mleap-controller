@@ -46,7 +46,7 @@ services:
     image: 192.168.2.150/zrar/mleap-controller:1.0.5
     restart: unless-stopped
     ports:
-      - 8083:8080
+      - 8081:8080
     volumes:
       - /opt/models:/models
     networks:

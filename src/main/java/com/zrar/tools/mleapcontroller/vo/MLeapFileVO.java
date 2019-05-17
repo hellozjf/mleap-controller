@@ -7,6 +7,7 @@ import lombok.Data;
  */
 @Data
 public class MLeapFileVO {
+    private String id;
     private String url;
     private String fileName;
     private String fileSize;
