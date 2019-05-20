@@ -9,8 +9,10 @@ import java.io.Serializable;
  */
 @Data
 public class ModelVO implements Serializable {
+    private String id;
     private String modelName;
     private String modelDesc;
     private String modelMd5;
     private String modelCutMethodName;
+    private String modelCutMethodDesc;
 }

@@ -8,7 +8,7 @@ import java.util.List;
  * @author Jingfeng Zhou
  */
 @Data
-public class TotalMLeapFileDataGridVO {
+public class TotalDataGridVO {
     private Integer total;
-    private List<MLeapFileVO> rows;
+    private List<ModelVO> rows;
 }

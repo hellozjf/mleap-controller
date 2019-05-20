@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 /**
@@ -50,13 +49,13 @@ public class WebController {
     private String active;
 
     @GetMapping("/getAll")
-    public TotalMLeapFileDataGridVO getAll() {
-        List<MLeapFileVO> mLeapFileVOList = webService.getAllMLeapFileVOList();
+    public TotalDataGridVO getAll() {
+        List<ModelVO> modelVOList = webService.getModelVOList();
 
-        TotalMLeapFileDataGridVO totalMLeapFileDataGridVO = new TotalMLeapFileDataGridVO();
-        totalMLeapFileDataGridVO.setTotal(mLeapFileVOList.size());
-        totalMLeapFileDataGridVO.setRows(mLeapFileVOList);
-        return totalMLeapFileDataGridVO;
+        TotalDataGridVO totalDataGridVO = new TotalDataGridVO();
+        totalDataGridVO.setTotal(modelVOList.size());
+        totalDataGridVO.setRows(modelVOList);
+        return totalDataGridVO;
     }
 
     /**

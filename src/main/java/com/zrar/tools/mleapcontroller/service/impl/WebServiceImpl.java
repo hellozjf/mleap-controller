@@ -88,6 +88,7 @@ public class WebServiceImpl implements WebService {
             MLeapEntity mLeapEntity = mLeapRepository.findByModelName(modelName);
             if (mLeapEntity != null) {
                 ModelVO modelVO = new ModelVO();
+                modelVO.setId(mLeapEntity.getId());
                 modelVO.setModelName(modelName);
                 modelVO.setModelDesc(mLeapEntity.getModelDesc());
                 File file = new File(fileService.getModelOutterPath(modelName));
@@ -100,7 +101,13 @@ public class WebServiceImpl implements WebService {
                     log.error("e = {}", e);
                     throw new MLeapException(ResultEnum.UNKNOWN_ERROR.getCode(), e.getMessage());
                 }
-                modelVO.setModelCutMethodName(mLeapEntity.getCutMethodName());
+                String cutMethodName = mLeapEntity.getCutMethodName();
+                modelVO.setModelCutMethodName(cutMethodName);
+                for (CutMethodEnum cutMethodEnum : CutMethodEnum.values()) {
+                    if (cutMethodEnum.getName().equalsIgnoreCase(cutMethodName)) {
+                        modelVO.setModelCutMethodDesc(cutMethodEnum.getDesc());
+                    }
+                }
                 modelVOList.add(modelVO);
             }
         }
