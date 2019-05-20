@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.zrar.tools.mleapcontroller.config.MleapConfig;
 import com.zrar.tools.mleapcontroller.constant.CutMethodEnum;
 import com.zrar.tools.mleapcontroller.constant.ResultEnum;
 import com.zrar.tools.mleapcontroller.dto.Indexes;
@@ -48,13 +49,16 @@ public class MLeapServiceImpl implements MLeapService {
     @Autowired
     private MLeapRepository mLeapRepository;
 
+    @Autowired
+    private MleapConfig mleapConfig;
+
     @Override
     public String online(String mleap, File file) {
         // 获取模型上线的URL
         String url = getOnlineUrl(mleap);
         // 模型的位置
         ObjectNode objectNode = objectMapper.createObjectNode();
-        objectNode.put("path", file.getAbsolutePath());
+        objectNode.put("path", mleapConfig.getModelInnerPath() + "/" + file.getName());
         String requestBody = null;
         try {
             requestBody = objectMapper.writeValueAsString(objectNode);
@@ -204,10 +208,14 @@ public class MLeapServiceImpl implements MLeapService {
     }
 
     private String getOnlineUrl(String mleap) {
-        return getUrl(mleap, "model");
+        return getModelUrl(mleap);
     }
 
     private String getOfflineUrl(String mleap) {
+        return getModelUrl(mleap);
+    }
+
+    private String getModelUrl(String mleap) {
         return getUrl(mleap, "model");
     }
 
@@ -216,7 +224,8 @@ public class MLeapServiceImpl implements MLeapService {
     }
 
     private String getUrl(String mleap, String type) {
-        String url = "http://" + mleap + ":65327/" + type;
+        // 构造mleap-bridge能够接收的地址
+        String url = "http://" + mleapConfig.getBridgeIp() + ":" + mleapConfig.getBridgePort() + "/" + mleap + "/" + type;
         return url;
     }
 }

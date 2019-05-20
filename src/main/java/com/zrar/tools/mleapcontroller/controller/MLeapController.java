@@ -2,6 +2,7 @@ package com.zrar.tools.mleapcontroller.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.zrar.tools.mleapcontroller.config.MleapConfig;
 import com.zrar.tools.mleapcontroller.constant.ResultEnum;
 import com.zrar.tools.mleapcontroller.entity.MLeapEntity;
 import com.zrar.tools.mleapcontroller.repository.MLeapRepository;
@@ -37,6 +38,9 @@ public class MLeapController {
     @Autowired
     private MLeapRepository mLeapRepository;
 
+    @Autowired
+    private MleapConfig mleapConfig;
+
     /**
      * 接收一个模型文件，让它上线
      * 实际上调用mleap的PUT /model方法
@@ -56,11 +60,10 @@ public class MLeapController {
         }
 
         // 获取文件名
-        String filename = multipartFile.getOriginalFilename();
-        File folder = new File("/models");
-        File file = new File(folder, filename);
+        File folder = new File(mleapConfig.getModelOutterPath());
+        File file = new File(folder, mleap + ".zip");
 
-        // 将上传上来的文件保存到/models目录
+        // 将上传上来的文件保存到 mleapConfig.modelPath 目录下
         try {
             byte[] data = multipartFile.getBytes();
             // 如果待保存的文件夹不存在，那就创建一个文件夹
@@ -99,9 +102,8 @@ public class MLeapController {
             MLeapEntity mLeapEntity = mLeapRepository.findByMleapName(mleap);
             if (mLeapEntity == null) {
                 mLeapEntity = new MLeapEntity();
-                mLeapEntity.setMleapName(mleap);
+                mLeapEntity.setModelName(mleap);
             }
-            mLeapEntity.setModelPath(file.getAbsolutePath());
             mLeapRepository.save(mLeapEntity);
 
             return ResultUtils.success(result);
@@ -128,7 +130,7 @@ public class MLeapController {
         if (mLeapEntity != null) {
             // 删除数据库记录，同时删除模型文件
             mLeapRepository.deleteById(mLeapEntity.getId());
-            File file = new File(mLeapEntity.getModelPath());
+            File file = new File(mleapConfig.getModelOutterPath() + "/" + mleap + ".zip");
             if (file.exists()) {
                 file.delete();
             }

@@ -37,18 +37,12 @@ public class BeanConfig {
      * @return
      */
     @Bean
-    public CommandLineRunner commandLineRunner(MLeapRepository mLeapRepository,
-                                               MLeapService mLeapService) {
+    public CommandLineRunner commandLineRunner(MleapConfig mleapConfig) {
         return args -> {
-            List<MLeapEntity> mLeapEntityList = mLeapRepository.findAll();
-            for (MLeapEntity mLeapEntity : mLeapEntityList) {
-                String mleap = mLeapEntity.getMleapName();
-                File file = new File(mLeapEntity.getModelPath());
-                try {
-                    mLeapService.online(mleap, file);
-                } catch (Exception e) {
-                    log.error("e = {}", e);
-                }
+            // 启动的时候要确保相关文件夹都存在
+            File folder = new File(mleapConfig.getModelOutterPath());
+            if (! folder.exists()) {
+                folder.mkdirs();
             }
         };
     }
