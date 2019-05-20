@@ -20,6 +20,9 @@ public enum ResultEnum {
     PREDICT_ERROR(9, "预测错误"),
     UNKNOWN_CUT_METHOD_ERROR(10, "未知切词方式"),
     UNKNOWN_NAME_ERROR(11, "未知的Name字段"),
+    GET_MODEL_NAMES_ERROR(12, "从docker-compose.yml中获取模型的名称列表失败"),
+    CAN_NOT_FIND_MODEL_ERROR(13, "找不到模型文件"),
+    UNKNOWN_ERROR(14, "未知错误"),
     ;
 
     Integer code;

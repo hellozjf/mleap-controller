@@ -9,8 +9,13 @@ import org.springframework.stereotype.Component;
  */
 @Data
 @Component
-@ConfigurationProperties("mleap")
-public class MleapConfig {
+@ConfigurationProperties("custom")
+public class CustomConfig {
+
+    /**
+     * mleap-outter-path，所有数据库、docker-compose.yml、models都在该目录下面
+     */
+    private String mleapOuterPath;
 
     /**
      * mleap-bridge的IP地址
@@ -25,10 +30,20 @@ public class MleapConfig {
     /**
      * mleap模型放置在宿主机里面的路径地址
      */
-    private String modelOutterPath;
+    private String modelOuterPath;
 
     /**
      * mleap模型放置在docker容器里面的路径地址
      */
     private String modelInnerPath;
+
+    /**
+     * docker-compose.yml文件所在的路径地址
+     */
+    private String dockerComposePath;
+
+    /**
+     * harbor的地址，生成docker-compose.yml时需要用到
+     */
+    private String harborIp;
 }

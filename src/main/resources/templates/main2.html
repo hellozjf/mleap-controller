@@ -35,7 +35,7 @@
         <th data-options="field:'fileSize', width:100">模型大小</th>
         <th data-options="field:'fileDate', width:250">模型修改时间</th>
         <th data-options="field:'desc', width:100, editor:'textbox'">模型描述</th>
-        <th data-options="field:'cutMethod', width:200,
+        <th data-options="field:'cutMethodName', width:200,
             formatter:function(value,row){
                 console.debug('row.cutMethodName=' + row.cutMethodName);
                 return row.cutMethodName;
@@ -43,8 +43,8 @@
             editor:{
                 type: 'combobox',
                 options: {
-                    valueField: 'cutMethodId',
-                    textField: 'cutMethodText',
+                    valueField: 'cutMethodName',
+                    textField: 'cutMethodDesc',
                     method: 'get',
                     url: 'web/getCutMethods',
                     required: true

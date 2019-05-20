@@ -5,15 +5,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.zrar.tools.mleapcontroller.config.MleapConfig;
+import com.zrar.tools.mleapcontroller.config.CustomConfig;
 import com.zrar.tools.mleapcontroller.constant.CutMethodEnum;
 import com.zrar.tools.mleapcontroller.constant.ResultEnum;
 import com.zrar.tools.mleapcontroller.dto.Indexes;
 import com.zrar.tools.mleapcontroller.entity.MLeapEntity;
 import com.zrar.tools.mleapcontroller.exception.MLeapException;
 import com.zrar.tools.mleapcontroller.repository.MLeapRepository;
+import com.zrar.tools.mleapcontroller.service.FileService;
 import com.zrar.tools.mleapcontroller.service.MLeapService;
-import com.zrar.tools.mleapcontroller.service.NetworkService;
 import com.zrar.tools.mleapcontroller.util.JsonUtils;
 import com.zrar.tools.mleapcontroller.util.WordUtils;
 import com.zrar.tools.mleapcontroller.vo.TaxClassifyPredictVO;
@@ -44,21 +44,21 @@ public class MLeapServiceImpl implements MLeapService {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private NetworkService networkService;
-
-    @Autowired
     private MLeapRepository mLeapRepository;
 
     @Autowired
-    private MleapConfig mleapConfig;
+    private CustomConfig customConfig;
+
+    @Autowired
+    private FileService fileService;
 
     @Override
-    public String online(String mleap, File file) {
+    public String online(String modelName, File file) {
         // 获取模型上线的URL
-        String url = getOnlineUrl(mleap);
+        String url = getOnlineUrl(modelName);
         // 模型的位置
         ObjectNode objectNode = objectMapper.createObjectNode();
-        objectNode.put("path", mleapConfig.getModelInnerPath() + "/" + file.getName());
+        objectNode.put("path", fileService.getModelInnerPath(modelName));
         String requestBody = null;
         try {
             requestBody = objectMapper.writeValueAsString(objectNode);
@@ -77,9 +77,9 @@ public class MLeapServiceImpl implements MLeapService {
     }
 
     @Override
-    public String offline(String mleap) {
+    public String offline(String modelName) {
         // 获取模型上线的URL
-        String url = getOfflineUrl(mleap);
+        String url = getOfflineUrl(modelName);
         // 发送DELETE请求，删除模型
         ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.DELETE, null, String.class);
         // 返回删除的结果
@@ -87,9 +87,9 @@ public class MLeapServiceImpl implements MLeapService {
     }
 
     @Override
-    public String transform(String mleap, String data) {
+    public String transform(String modelName, String data) {
         // 获取模型预测的URL
-        String url = getTransformUrl(mleap);
+        String url = getTransformUrl(modelName);
         // 获取待预测的数据
         String requestBody = data;
         // 发送POST请求，预测数据
@@ -110,27 +110,27 @@ public class MLeapServiceImpl implements MLeapService {
     }
 
     @Override
-    public List<TaxClassifyPredictVO> predict(String mleap, List<String> raws, String nature) {
+    public List<TaxClassifyPredictVO> predict(String modelName, List<String> raws, String nature) {
 
-        MLeapEntity mLeapEntity = mLeapRepository.findByMleapName(mleap);
+        MLeapEntity mLeapEntity = mLeapRepository.findByModelName(modelName);
 
         // 切词
         List<String> wordCuts = new ArrayList<>();
         for (String raw : raws) {
             String wordCut = null;
-            if (CutMethodEnum.WORD_CUT.getName().equalsIgnoreCase(mLeapEntity.getCutMethod())) {
+            if (CutMethodEnum.WORD_CUT.getName().equalsIgnoreCase(mLeapEntity.getCutMethodName())) {
                 log.debug("choose wordCut");
                 wordCut = WordUtils.wordCut(raw, nature);
-            } else if (CutMethodEnum.WORD_CUT_VSWZYC.getName().equalsIgnoreCase(mLeapEntity.getCutMethod())) {
+            } else if (CutMethodEnum.WORD_CUT_VSWZYC.getName().equalsIgnoreCase(mLeapEntity.getCutMethodName())) {
                 log.debug("choose wordCut vswzyc");
                 wordCut = WordUtils.wordCut(raw, CutMethodEnum.WORD_CUT_VSWZYC.getNature());
-            } else if (CutMethodEnum.PHRASE_LIST.getName().equalsIgnoreCase(mLeapEntity.getCutMethod())) {
+            } else if (CutMethodEnum.PHRASE_LIST.getName().equalsIgnoreCase(mLeapEntity.getCutMethodName())) {
                 log.debug("choose phraseList");
                 wordCut = WordUtils.phraseList(raw);
             } else {
                 log.error("未知切词方式：{}", wordCut);
                 // 将切词方式更新为wordCut
-                mLeapEntity.setCutMethod(CutMethodEnum.WORD_CUT.getName());
+                mLeapEntity.setCutMethodName(CutMethodEnum.WORD_CUT.getName());
                 mLeapRepository.save(mLeapEntity);
                 wordCut = WordUtils.wordCut(raw, nature);
             }
@@ -142,7 +142,7 @@ public class MLeapServiceImpl implements MLeapService {
         log.debug("queryString = {}", queryString);
 
         // 预测模型
-        String result = transform(mleap, queryString);
+        String result = transform(modelName, queryString);
         log.debug("transform result = {}", result);
         JsonNode jsonNode = null;
         try {
@@ -207,25 +207,25 @@ public class MLeapServiceImpl implements MLeapService {
         return taxClassifyPredictVOList;
     }
 
-    private String getOnlineUrl(String mleap) {
-        return getModelUrl(mleap);
+    private String getOnlineUrl(String modelName) {
+        return getModelUrl(modelName);
     }
 
-    private String getOfflineUrl(String mleap) {
-        return getModelUrl(mleap);
+    private String getOfflineUrl(String modelName) {
+        return getModelUrl(modelName);
     }
 
-    private String getModelUrl(String mleap) {
-        return getUrl(mleap, "model");
+    private String getModelUrl(String modelName) {
+        return getUrl(modelName, "model");
     }
 
-    private String getTransformUrl(String mleap) {
-        return getUrl(mleap, "transform");
+    private String getTransformUrl(String modelName) {
+        return getUrl(modelName, "transform");
     }
 
-    private String getUrl(String mleap, String type) {
+    private String getUrl(String modelName, String type) {
         // 构造mleap-bridge能够接收的地址
-        String url = "http://" + mleapConfig.getBridgeIp() + ":" + mleapConfig.getBridgePort() + "/" + mleap + "/" + type;
+        String url = "http://" + customConfig.getBridgeIp() + ":" + customConfig.getBridgePort() + "/" + modelName + "/" + type;
         return url;
     }
 }

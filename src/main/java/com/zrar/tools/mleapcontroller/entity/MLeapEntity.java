@@ -30,5 +30,5 @@ public class MLeapEntity extends BaseEntity {
     /**
      * 自定义字段cutMethod，用哪种方式切词，默认为CutMethodEnum.WORD_CUT.getName()
      */
-    private String cutMethod;
+    private String cutMethodName;
 }

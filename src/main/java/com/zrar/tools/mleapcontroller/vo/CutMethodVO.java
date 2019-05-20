@@ -7,6 +7,14 @@ import lombok.Data;
  */
 @Data
 public class CutMethodVO {
-    private String cutMethodId;
-    private String cutMethodText;
+
+    /**
+     * 切词方式名称
+     */
+    private String cutMethodName;
+
+    /**
+     * 切词方式描述
+     */
+    private String cutMethodDesc;
 }

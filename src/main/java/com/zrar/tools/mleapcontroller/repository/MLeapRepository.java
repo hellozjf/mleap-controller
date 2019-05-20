@@ -7,5 +7,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @author Jingfeng Zhou
  */
 public interface MLeapRepository extends JpaRepository<MLeapEntity, String> {
-    MLeapEntity findByMleapName(String mleapName);
+    MLeapEntity findByModelName(String modelName);
 }

@@ -2,11 +2,12 @@ package com.zrar.tools.mleapcontroller.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zrar.tools.mleapcontroller.config.MleapConfig;
+import com.zrar.tools.mleapcontroller.config.CustomConfig;
 import com.zrar.tools.mleapcontroller.constant.ResultEnum;
 import com.zrar.tools.mleapcontroller.entity.MLeapEntity;
 import com.zrar.tools.mleapcontroller.repository.MLeapRepository;
 import com.zrar.tools.mleapcontroller.service.MLeapService;
+import com.zrar.tools.mleapcontroller.service.FileService;
 import com.zrar.tools.mleapcontroller.util.ResultUtils;
 import com.zrar.tools.mleapcontroller.vo.ResultVO;
 import com.zrar.tools.mleapcontroller.vo.TaxClassifyPredictVO;
@@ -39,7 +40,7 @@ public class MLeapController {
     private MLeapRepository mLeapRepository;
 
     @Autowired
-    private MleapConfig mleapConfig;
+    private FileService fileService;
 
     /**
      * 接收一个模型文件，让它上线
@@ -48,11 +49,11 @@ public class MLeapController {
      * @param multipartFile
      * @return
      */
-    @PostMapping("/{mleap}/onlineModel")
-    public ResultVO onlineModel(@PathVariable("mleap") String mleap,
+    @PostMapping("/{modelName}/onlineModel")
+    public ResultVO onlineModel(@PathVariable("modelName") String modelName,
                                 @RequestParam("file") MultipartFile multipartFile) {
 
-        log.debug("mleap = {}, file = {}", mleap, multipartFile);
+        log.debug("modelName = {}, file = {}", modelName, multipartFile);
 
         // 判断上传过来的文件是不是空的
         if (multipartFile.isEmpty()) {
@@ -60,24 +61,14 @@ public class MLeapController {
         }
 
         // 获取文件名
-        File folder = new File(mleapConfig.getModelOutterPath());
-        File file = new File(folder, mleap + ".zip");
+        File file = new File(fileService.getModelOutterPath(modelName));
 
-        // 将上传上来的文件保存到 mleapConfig.modelPath 目录下
+        // 将上传上来的文件保存到 mleapConfig.modelOuterPath 目录下
         try {
             byte[] data = multipartFile.getBytes();
-            // 如果待保存的文件夹不存在，那就创建一个文件夹
-            if (!folder.exists()) {
-                folder.mkdirs();
-            }
-            // 如果目标文件存在，删除它
-            if (file.exists()) {
-                file.delete();
-            }
             // 然后把文件保存下来
             try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(data);
                  FileOutputStream fileOutputStream = new FileOutputStream(file)) {
-
                 IOUtils.copy(byteArrayInputStream, fileOutputStream);
             } catch (IOException e) {
                 log.error("e = {}", e);
@@ -96,13 +87,13 @@ public class MLeapController {
 
         // 让模型上线
         try {
-            String result = mLeapService.online(mleap, file);
+            String result = mLeapService.online(modelName, file);
 
             // 将更新或添加模型数据到数据库中
-            MLeapEntity mLeapEntity = mLeapRepository.findByMleapName(mleap);
+            MLeapEntity mLeapEntity = mLeapRepository.findByModelName(modelName);
             if (mLeapEntity == null) {
                 mLeapEntity = new MLeapEntity();
-                mLeapEntity.setModelName(mleap);
+                mLeapEntity.setModelName(modelName);
             }
             mLeapRepository.save(mLeapEntity);
 
@@ -122,15 +113,15 @@ public class MLeapController {
      *
      * @return
      */
-    @PostMapping("/{mleap}/offlineModel")
-    public ResultVO offlineModel(@PathVariable("mleap") String mleap) {
-        String result = mLeapService.offline(mleap);
+    @PostMapping("/{modelName}/offlineModel")
+    public ResultVO offlineModel(@PathVariable("modelName") String modelName) {
+        String result = mLeapService.offline(modelName);
 
-        MLeapEntity mLeapEntity = mLeapRepository.findByMleapName(mleap);
+        MLeapEntity mLeapEntity = mLeapRepository.findByModelName(modelName);
         if (mLeapEntity != null) {
             // 删除数据库记录，同时删除模型文件
             mLeapRepository.deleteById(mLeapEntity.getId());
-            File file = new File(mleapConfig.getModelOutterPath() + "/" + mleap + ".zip");
+            File file = new File(fileService.getModelOutterPath(modelName));
             if (file.exists()) {
                 file.delete();
             }
@@ -143,8 +134,7 @@ public class MLeapController {
      * 调用模型，返回预测结果
      * 实际上调用mleap的POST /transform方法
      *
-     * @param data
-     *      {"schema":{"fields":[{"name":"word","type":"string"}]},"rows":[["增值税 的 税率 是 多少"]]}
+     * @param data {"schema":{"fields":[{"name":"word","type":"string"}]},"rows":[["增值税 的 税率 是 多少"]]}
      * @return
      */
     @PostMapping("/{mleap}/invokeModel")
