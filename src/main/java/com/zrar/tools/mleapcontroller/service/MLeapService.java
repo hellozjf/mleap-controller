@@ -12,44 +12,43 @@ public interface MLeapService {
 
     /**
      * 上线模型
-     * @param mleap
-     * @param file
+     * @param modelName
      * @return
      */
-    String online(String mleap, File file);
+    String online(String modelName);
 
     /**
      * 下线模型
-     * @param mleap
+     * @param modelName
      * @return
      * @throws Exception
      */
-    String offline(String mleap);
+    String offline(String modelName);
 
     /**
      * 调用某个mleap服务的transform接口，传输的内容是data，返回的是一个String
-     * @param mleap
+     * @param modelName
      * @param data
      * @return
      */
-    String transform(String mleap, String data);
+    String transform(String modelName, String data);
 
     /**
      * 调用某个mleap服务的预测接口，传输的是待预测的字符串，返回的是预测结果
-     * @param mleap
+     * @param modelName
      * @param raw
      * @param nature 词性，如果为null表示不筛选词性
      * @return
      */
-    TaxClassifyPredictVO predict(String mleap, String raw, String nature);
+    TaxClassifyPredictVO predict(String modelName, String raw, String nature);
 
     /**
      * 调用某个mleap服务的预测接口，传输的是待预测的字符串列表，返回的是预测结果列表
-     * @param mleap
+     * @param modelName
      * @param raws
      * @param nature 词性，如果为null表示不筛选词性
      * @return
      */
-    List<TaxClassifyPredictVO> predict(String mleap, List<String> raws, String nature);
+    List<TaxClassifyPredictVO> predict(String modelName, List<String> raws, String nature);
 
 }

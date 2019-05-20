@@ -19,6 +19,7 @@ import com.zrar.tools.mleapcontroller.util.WordUtils;
 import com.zrar.tools.mleapcontroller.vo.TaxClassifyPredictVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -53,7 +54,7 @@ public class MLeapServiceImpl implements MLeapService {
     private FileService fileService;
 
     @Override
-    public String online(String modelName, File file) {
+    public String online(String modelName) {
         // 获取模型上线的URL
         String url = getOnlineUrl(modelName);
         // 模型的位置

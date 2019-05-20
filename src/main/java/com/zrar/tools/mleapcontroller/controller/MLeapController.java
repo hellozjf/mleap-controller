@@ -14,6 +14,7 @@ import com.zrar.tools.mleapcontroller.vo.TaxClassifyPredictVO;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -41,6 +42,15 @@ public class MLeapController {
 
     @Autowired
     private FileService fileService;
+
+    @Autowired
+    private CustomConfig customConfig;
+
+    @Value("${spring.profiles.active}")
+    private String active;
+
+    @Autowired
+    private Runtime runtime;
 
     /**
      * 接收一个模型文件，让它上线
@@ -85,9 +95,22 @@ public class MLeapController {
             return ResultUtils.error(ResultEnum.FILE_IS_WRONG.getCode(), e.getMessage());
         }
 
+        // dev版本，还需要把model文件拷贝到服务器上面去
+        if (active.equalsIgnoreCase("dev")) {
+            try {
+                String cmd = "scp " + fileService.getModelOutterPath(modelName) + " "
+                        + customConfig.getRemoteUsername() + "@" + customConfig.getBridgeIp() + ":/opt/docker/mleap/models";
+                Process process = runtime.exec(cmd);
+                log.debug("{} return {}", cmd, process.waitFor());
+            } catch (Exception e) {
+                log.error("e = {}", e);
+                System.exit(-1);
+            }
+        }
+
         // 让模型上线
         try {
-            String result = mLeapService.online(modelName, file);
+            String result = mLeapService.online(modelName);
 
             // 将更新或添加模型数据到数据库中
             MLeapEntity mLeapEntity = mLeapRepository.findByModelName(modelName);
@@ -124,6 +147,19 @@ public class MLeapController {
             File file = new File(fileService.getModelOutterPath(modelName));
             if (file.exists()) {
                 file.delete();
+            }
+
+            // dev版本，还需要删除远端的模型文件
+            if (active.equalsIgnoreCase("dev")) {
+                try {
+                    String cmd = "ssh " + customConfig.getRemoteUsername() + "@" + customConfig.getBridgeIp()
+                            + " \"cd /opt/docker/mleap/models; rm -f " + file.getName() + "\"";
+                    Process process = runtime.exec(cmd);
+                    log.debug("{} return {}", cmd, process.waitFor());
+                } catch (Exception e) {
+                    log.error("e = {}", e);
+                    System.exit(-1);
+                }
             }
         }
 

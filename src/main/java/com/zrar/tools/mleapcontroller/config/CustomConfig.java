@@ -46,4 +46,14 @@ public class CustomConfig {
      * harbor的地址，生成docker-compose.yml时需要用到
      */
     private String harborIp;
+
+    /**
+     * dev时，需要的remote的用户名
+     */
+    private String remoteUsername;
+
+    /**
+     * dev时，需要的remote的密码
+     */
+    private String remotePassword;
 }

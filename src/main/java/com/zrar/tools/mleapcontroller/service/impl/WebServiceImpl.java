@@ -14,9 +14,7 @@ import com.zrar.tools.mleapcontroller.vo.ModelVO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
@@ -50,14 +48,7 @@ public class WebServiceImpl implements WebService {
     private FileService fileService;
 
     @Override
-    @Cacheable(value = "WebService", key = "'getModelNameList'")
     public List<String> getModelNameList() {
-        return updateModelNameList();
-    }
-
-    @Override
-    @CachePut(value = "WebService", key = "'getModelNameList'")
-    public List<String> updateModelNameList() {
         try {
             File file = new File(fileService.getDockerComposeYmlPath());
             Map map = yamlObjectMapper.readValue(new FileInputStream(file), Map.class);

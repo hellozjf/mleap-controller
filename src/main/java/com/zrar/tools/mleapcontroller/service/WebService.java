@@ -12,16 +12,10 @@ import java.util.List;
 public interface WebService {
 
     /**
-     * 从缓存中获取modelName列表，通过updateModelNameList更新modelName列表
+     * 从docker-compose.yml中获取modelName列表
      * @return
      */
     List<String> getModelNameList();
-
-    /**
-     * 从docker-compose.yml中更新modelName列表
-     * @return
-     */
-    List<String> updateModelNameList();
 
     /**
      * 获取切词方式列表，结果需要缓存
@@ -30,7 +24,7 @@ public interface WebService {
     List<CutMethodVO> getCutMethodVOList();
 
     /**
-     *
+     * 获取所有模型列表
      * @return
      */
     List<ModelVO> getModelVOList();

@@ -42,44 +42,14 @@ public class BeanConfig {
         return Runtime.getRuntime();
     }
 
-    /**
-     * 启动时要
-     * 1. 创建相关文件夹
-     * 2. 删除原有的docker-compose.yml创建的容器
-     * 3. 从数据库中恢复docker-compose.yml文件
-     * 4. 用新的docker-compose.yml文件创建容器
-     * 5. 将模型都加载到容器中
-     *
-     * @return
-     */
     @Bean
-    public CommandLineRunner commandLineRunner(CustomConfig customConfig,
-                                               Runtime runtime,
-                                               @Value("${spring.profiles.active}") String active,
-                                               DatabaseService databaseService) {
+    public CommandLineRunner commandLineRunner(DatabaseService databaseService) {
         return args -> {
-
-            Process process = null;
-
-            // 创建相关文件夹
-            File folder = new File(customConfig.getModelOuterPath());
-            if (!folder.exists()) {
-                folder.mkdirs();
-            }
-
-            // 删除原有的docker-compose.yml创建的容器
-            if (active.equalsIgnoreCase("prod")) {
-                process = runtime.exec("docker-compose down");
-                log.debug("docker-compose down return {}", process.exitValue());
-            }
-
-            // 从数据库中恢复docker-compose.yml文件
-            databaseService.generateDockerComposeYml();
-
-            // 用新的docker-compose.yml文件创建容器
-            if (active.equalsIgnoreCase("prod")) {
-                process = runtime.exec("docker-compose up -d");
-                log.debug("docker-compose up -d return {}", process.exitValue());
+            try {
+                databaseService.init();
+            } catch (Exception e) {
+                log.error("e = {}", e);
+                System.exit(-1);
             }
         };
     }
