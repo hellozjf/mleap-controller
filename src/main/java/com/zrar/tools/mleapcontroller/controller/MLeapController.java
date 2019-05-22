@@ -142,8 +142,7 @@ public class MLeapController {
 
         MLeapEntity mLeapEntity = mLeapRepository.findByModelName(modelName);
         if (mLeapEntity != null) {
-            // 删除数据库记录，同时删除模型文件
-            mLeapRepository.deleteById(mLeapEntity.getId());
+            // 删除模型文件
             File file = new File(fileService.getModelOutterPath(modelName));
             if (file.exists()) {
                 file.delete();

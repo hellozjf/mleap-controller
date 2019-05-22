@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Row Editing in DataGrid - jQuery EasyUI Demo</title>
+    <title>算法服务平台</title>
     <link rel="stylesheet" type="text/css" href="css/easyui.css">
     <link rel="stylesheet" type="text/css" href="css/icon.css">
     <link rel="stylesheet" type="text/css" href="css/demo.css">
@@ -11,6 +11,8 @@
 </head>
 <body>
 
+<input type="text" id="fileUploadModelName" style="display: none">
+<input type="file" id="fileUpload" style="display: none" onchange="uploadFile()">
 <table id="dg" class="easyui-datagrid" title="模型列表" style="width:100%;height:auto"
        data-options="
 				iconCls: 'icon-edit',
@@ -24,9 +26,17 @@
     <thead>
     <tr>
         <th data-options="field:'id', hidden:true">编号</th>
-        <th data-options="field:'modelName', width:200, editor:'textbox'">模型名称</th>
+        <th data-options="field:'modelName', width:200,
+                        editor:{
+                            type:'textbox',
+                            options:{
+                                readonly:true,
+                                required:true
+                            }
+                        }">模型名称
+        </th>
         <th data-options="field:'modelDesc', width:200, editor:'textbox'">模型描述</th>
-        <th data-options="field:'modelMd5', width:300">模型摘要</th>
+        <th data-options="field:'modelMd5', width:300">模型MD5</th>
         <th data-options="field:'modelCutMethodName', width:200,
 						formatter:function(value,row){
 							return row.modelCutMethodDesc;
@@ -42,6 +52,7 @@
 							}
 						}">分词方式
         </th>
+        <th data-options="field:'formatOper',width:400,align:'center',formatter:formatOper">操作</th>
     </tr>
     </thead>
 </table>
@@ -57,6 +68,36 @@
        onclick="reject()">撤销</a>
     <a href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-reload',plain:true"
        onclick="restart()">重启</a>
+</div>
+
+
+<div id="dlg" class="easyui-dialog" title="Basic Dialog"
+     data-options="iconCls:'icon-save',modal:true,closed:true,onClose:endEditing"
+     style="width:800px;height:600px;padding:10px">
+    <input type="text" style="display: none" name="modelName">
+    <table cellpadding="5">
+        <tr>
+            <td>测试文本:</td>
+            <td><input id="testRaw" class="easyui-textbox" name="raw" data-options="multiline:true" style="height:160px; width:600px"></td>
+            <td><a href="#" class="easyui-linkbutton" onclick="javascript:testModel()">测试</a></td>
+        </tr>
+        <tr>
+            <td>切词结果:</td>
+            <td><input id="testWord" class="easyui-textbox" type="text" name="word" data-options="multiline:true,readonly:true" style="height:160px; width:600px"></td>
+        </tr>
+        <tr>
+            <td>分类结果:</td>
+            <td><input id="testPredictString" class="easyui-textbox" type="text" name="predictString" data-options="readonly:true" style="width: 600px"></td>
+        </tr>
+        <tr>
+            <td>分类类别:</td>
+            <td><input id="testPredict" class="easyui-textbox" type="text" name="predict" data-options="readonly:true" style="width: 600px"></td>
+        </tr>
+        <tr>
+            <td>置信度:</td>
+            <td><input id="testProbability" class="easyui-textbox" type="text" name="probability" data-options="readonly:true" style="width: 600px"></td>
+        </tr>
+    </table>
 </div>
 
 <script type="text/javascript">
@@ -98,15 +139,18 @@
             index: index,
             field: 'modelCutMethodName'
         });
+        row.cutMethodName = $(ed.target).combobox('getValue');
         row.modelCutMethodDesc = $(ed.target).combobox('getText');
     }
 
     function append() {
         if (endEditing()) {
-            $('#dg').datagrid('appendRow', {});
+            $('#dg').datagrid('appendRow', {modelCutMethodName: 'wordCut', modelCutMethodDesc: '切词'});
             editIndex = $('#dg').datagrid('getRows').length - 1;
             $('#dg').datagrid('selectRow', editIndex)
                 .datagrid('beginEdit', editIndex);
+            var ed = $('#dg').datagrid('getEditor', {index: editIndex, field: 'modelName'});
+            $(ed.target).textbox('readonly', false);
         }
     }
 
@@ -114,15 +158,65 @@
         if (editIndex == undefined) {
             return
         }
-        $('#dg').datagrid('cancelEdit', editIndex)
+        var rows = $('#dg').datagrid('cancelEdit', editIndex)
             .datagrid('deleteRow', editIndex);
         editIndex = undefined;
     }
 
     function accept() {
         if (endEditing()) {
-            var rows = $('#dg').datagrid('getChanges');
-            console.debug("rows = " + rows);
+            var insertedRows = $('#dg').datagrid('getChanges', 'inserted');
+            var deletedRows = $('#dg').datagrid('getChanges', 'deleted');
+            var updatedRows = $('#dg').datagrid('getChanges', 'updated');
+            console.debug("insertedRows = " + JSON.stringify(insertedRows));
+            console.debug("deletedRows = " + JSON.stringify(deletedRows));
+            console.debug("updatedRows = " + JSON.stringify(updatedRows));
+
+            // 为deletedRows调用/web/delModel
+            for (var i = 0; i < deletedRows.length; i++) {
+                var deletedRow = deletedRows[i];
+                $.post({
+                    url: 'web/delModel',
+                    data: deletedRow,
+                    success: function (data) {
+                        console.debug(data);
+                    },
+                    dataType: 'json',
+                })
+            }
+            // 为updateRows调用/web/updateModel
+            for (var i = 0; i < updatedRows.length; i++) {
+                var updateRow = updatedRows[i];
+                $.post({
+                    url: 'web/updateModel',
+                    data: updateRow,
+                    success: function (data) {
+                        console.debug(data);
+                    },
+                    dataType: 'json',
+                })
+            }
+            // 为insertedRows调用/web/addModel
+            for (var i = 0; i < insertedRows.length; i++) {
+                var insertedRow = insertedRows[i];
+                $.post({
+                    url: 'web/addModel',
+                    data: insertedRow,
+                    success: function (data) {
+                        console.debug(data);
+                    },
+                    dataType: 'json',
+                })
+            }
+
+            if (deletedRows.length || insertedRows.length) {
+                $.messager.confirm('消息', '检测到新增或删除模型，需要重启后生效，是否立即重启', function(r) {
+                    console.debug('r=' + r);
+                    if (r) {
+                        restart();
+                    }
+                });
+            }
             $('#dg').datagrid('acceptChanges');
         }
     }
@@ -132,10 +226,176 @@
         editIndex = undefined;
     }
 
-    function reload() {
-        var rows = $('#dg').datagrid('getChanges');
-        alert(rows.length + ' rows are changed!');
+    function restart() {
+        $.messager.progress({
+            title: '提示',
+            msg: '重启docker',
+            text: '请等待...',
+            interval: '1000',
+        });
+        $.post({
+            url: 'web/restart',
+            success: function (data) {
+                console.debug(data);
+                $.messager.progress('close');
+                $('#dg').datagrid('reload');
+                $.messager.show({
+                    title:'消息',
+                    msg:'docker重启成功',
+                    timeout:2000,
+                    showType:'slide'
+                });
+            },
+            dataType: 'json'
+        })
     }
+
+    function formatOper(val, row, index) {
+        if (row.id) {
+            // console.debug('val=' + val + ' row=' + row + ' index=' + index);
+            return '&nbsp;<a href="#" index="' + index + '" onclick="onlineModel($(this))">上传模型</a>&nbsp;'
+                + '&nbsp;<a href="#" index="' + index + '" onclick="offlineModel($(this))">下线模型</a>&nbsp;'
+                + '&nbsp;<a href="#" index="' + index + '" onclick="openTestModelDialog($(this))">测试模型</a>&nbsp;';
+        } else {
+            return '';
+        }
+    }
+
+    function onlineModel(e) {
+        console.debug('onlineModel e=' + JSON.stringify(e));
+        // 获取modelName
+        var modelName = getModelNameByE(e);
+        $('#fileUploadModelName').text(modelName);
+        // 选择文件，选择完之后文件发生改变，会自动调用uploadFile
+        $('#fileUpload').click();
+    }
+
+    function offlineModel(e) {
+        console.debug('offlineModel e=' + JSON.stringify(e));
+        // 获取modelName
+        var modelName = getModelNameByE(e);
+        // 下线模型
+        $.messager.progress({
+            title: '提示',
+            msg: '下线模型',
+            text: '请等待...',
+            interval: '1000',
+        });
+        $.ajax({
+            url: modelName + '/offlineModel',
+            method: 'POST',
+            dataType: 'json',
+            success: function (data) {
+                console.debug(data);
+                if (data.code === 0) {
+                    $.messager.show({
+                        title:'消息',
+                        msg:'模型下线成功',
+                        timeout:2000,
+                        showType:'slide'
+                    });
+                } else {
+                    alert('模型下线失败，失败原因：' + data.msg);
+                }
+            },
+            complete: function () {
+                endEditing();
+                $.messager.progress('close');
+                $('#dg').datagrid('reload');
+            }
+        });
+    }
+
+    function openTestModelDialog(e) {
+        var modelName = getModelNameByE(e);
+        $('#dlg').dialog('setTitle', '测试' + modelName);
+        $('#dlg input[name="modelName"]').val(modelName);
+        $('#testWord').textbox('setValue', '');
+        $('#testPredictString').textbox('setValue', '');
+        $('#testPredict').textbox('setValue', '');
+        $('#testProbability').textbox('setValue', '');
+        $('#dlg').dialog('open');
+    }
+
+    function testModel() {
+        console.debug('testModel');
+        var modelName = $('#dlg input[name="modelName"]').val();
+        var raw = $('#testRaw').textbox('getValue');
+        $.messager.progress({
+            title: '提示',
+            msg: '等待测试结果返回',
+            text: '请等待...',
+            interval: '1000',
+        });
+        $.post({
+            url: modelName + '/predict',
+            contentType: "application/json",
+            data: raw,
+            dataType: 'json',
+            success: function (result) {
+                if (result.code === 0) {
+                    $('#testWord').textbox('setValue', result.data.word)
+                    $('#testPredictString').textbox('setValue', result.data.predictString)
+                    $('#testPredict').textbox('setValue', result.data.predict)
+                    $('#testProbability').textbox('setValue', result.data.probability)
+                } else {
+                    alert(result.msg);
+                }
+                $.messager.progress('close');
+            }
+        });
+    }
+
+    // 上传文件
+    function uploadFile() {
+        var file = $('#fileUpload')[0].files[0];
+        var modelName = $('#fileUploadModelName').text();
+        if (file) {
+            var data = new FormData();
+            data.append('file', file);
+            $.messager.progress({
+                title: '提示',
+                msg: '上传模型',
+                text: '请等待...',
+                interval: '1000',
+            });
+            $.ajax({
+                url: modelName + '/onlineModel',
+                data: data,
+                method: 'POST',
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                success: function (data) {
+                    console.debug(data);
+                    if (data.code === 0) {
+                        $.messager.show({
+                            title:'消息',
+                            msg:'模型上线成功',
+                            timeout:2000,
+                            showType:'slide'
+                        });
+                    } else {
+                        alert('模型上线失败，失败原因：' + data.msg);
+                    }
+                },
+                complete: function () {
+                    endEditing();
+                    $.messager.progress('close');
+                    $('#dg').datagrid('reload');
+                }
+            });
+        }
+    }
+
+    function getModelNameByE(e) {
+        var index = $(e[0]).attr('index');
+        onClickCell(index, 'formatOper');
+        var ed = $('#dg').datagrid('getEditor', {index: index, field: 'modelName'});
+        var modelName = $(ed.target).textbox('getText');
+        return modelName;
+    }
+
 </script>
 </body>
 </html>

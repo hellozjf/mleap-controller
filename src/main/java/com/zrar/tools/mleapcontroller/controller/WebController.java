@@ -60,6 +60,7 @@ public class WebController {
 
     /**
      * 获取所有切词方式
+     *
      * @return
      */
     @GetMapping("/getCutMethodVOList")
@@ -69,6 +70,7 @@ public class WebController {
 
     /**
      * 获取所有模型列表
+     *
      * @return
      */
     @GetMapping("/getModelVOList")
@@ -78,6 +80,7 @@ public class WebController {
 
     /**
      * 添加模型
+     *
      * @param modelName
      * @param modelDesc
      * @param cutMethodName
@@ -91,12 +94,13 @@ public class WebController {
         mLeapEntity.setModelName(modelName);
         mLeapEntity.setModelDesc(modelDesc);
         mLeapEntity.setCutMethodName(cutMethodName);
-        mLeapRepository.save(mLeapEntity);
-        return ResultUtils.success();
+        mLeapEntity = mLeapRepository.save(mLeapEntity);
+        return ResultUtils.success(mLeapEntity);
     }
 
     /**
      * 删除模型
+     *
      * @param modelName
      * @return
      */
@@ -124,11 +128,32 @@ public class WebController {
             }
         }
 
-        return ResultUtils.success();
+        return ResultUtils.success(modelName);
+    }
+
+    /**
+     * 更新模型列表
+     *
+     * @return
+     */
+    @PostMapping("/updateModel")
+    public ResultVO updateModel(String id,
+                                String modelDesc,
+                                String cutMethodName) {
+        MLeapEntity mLeapEntity = mLeapRepository.findById(id).get();
+        if (mLeapEntity == null) {
+            log.error("can not find id = {}", id);
+        } else {
+            mLeapEntity.setModelDesc(modelDesc);
+            mLeapEntity.setCutMethodName(cutMethodName);
+            mLeapEntity = mLeapRepository.save(mLeapEntity);
+        }
+        return ResultUtils.success(mLeapEntity);
     }
 
     /**
      * 添加完模型，仅仅是在数据库中添加了一条记录，还需要通过重启使服务真实生效
+     *
      * @return
      */
     @RequestMapping("/restart")

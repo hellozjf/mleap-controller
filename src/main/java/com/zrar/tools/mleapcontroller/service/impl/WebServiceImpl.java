@@ -96,7 +96,7 @@ public class WebServiceImpl implements WebService {
                     modelVO.setModelMd5(DigestUtils.md5DigestAsHex(inputStream));
                 } catch (FileNotFoundException e) {
                     log.error("找不到模型文件{}", modelName);
-                    modelVO.setModelMd5("模型未上传");
+                    modelVO.setModelMd5("");
                 } catch (IOException e) {
                     log.error("e = {}", e);
                     throw new MLeapException(ResultEnum.UNKNOWN_ERROR.getCode(), e.getMessage());

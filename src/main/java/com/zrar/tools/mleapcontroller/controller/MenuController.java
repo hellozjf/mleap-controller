@@ -26,4 +26,9 @@ public class MenuController {
     public String rowediting() {
         return "rowediting";
     }
+
+    @GetMapping("/iview")
+    public String iview() {
+        return "iview";
+    }
 }
