@@ -2,15 +2,15 @@ package com.zrar.tools.mleapcontroller.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
-import com.zrar.tools.mleapcontroller.service.DatabaseService;
+import com.zrar.tools.mleapcontroller.service.DockerService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.File;
+import java.time.Duration;
 
 /**
  * 存放系统运行所需要的bean
@@ -22,8 +22,11 @@ import java.io.File;
 public class BeanConfig {
 
     @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
+    public RestTemplate restTemplate(RestTemplateBuilder restTemplateBuilder) {
+        return restTemplateBuilder
+                .setConnectTimeout(Duration.ofSeconds(10))
+                .setReadTimeout(Duration.ofSeconds(60))
+                .build();
     }
 
     @Bean
@@ -43,14 +46,9 @@ public class BeanConfig {
     }
 
     @Bean
-    public CommandLineRunner commandLineRunner(DatabaseService databaseService) {
+    public CommandLineRunner commandLineRunner(DockerService dockerService) {
         return args -> {
-            try {
-                databaseService.init();
-            } catch (Exception e) {
-                log.error("e = {}", e);
-                System.exit(-1);
-            }
+            dockerService.init();
         };
     }
 }

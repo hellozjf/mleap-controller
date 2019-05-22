@@ -23,6 +23,8 @@ public enum ResultEnum {
     GET_MODEL_NAMES_ERROR(12, "从docker-compose.yml中获取模型的名称列表失败"),
     CAN_NOT_FIND_MODEL_ERROR(13, "找不到模型文件"),
     UNKNOWN_ERROR(14, "未知错误"),
+    DEL_MODEL_ERROR(15, "删除模型失败"),
+    ADD_MODEL_ERROR(16, "添加模型失败"),
     ;
 
     Integer code;

@@ -1,7 +1,7 @@
 package com.zrar.tools.mleapcontroller.service;
 
+import com.zrar.tools.mleapcontroller.entity.MLeapEntity;
 import com.zrar.tools.mleapcontroller.vo.CutMethodVO;
-import com.zrar.tools.mleapcontroller.vo.MLeapFileVO;
 import com.zrar.tools.mleapcontroller.vo.ModelVO;
 
 import java.util.List;
@@ -10,12 +10,6 @@ import java.util.List;
  * @author Jingfeng Zhou
  */
 public interface WebService {
-
-    /**
-     * 从docker-compose.yml中获取modelName列表
-     * @return
-     */
-    List<String> getModelNameList();
 
     /**
      * 获取切词方式列表，结果需要缓存
@@ -30,8 +24,31 @@ public interface WebService {
     List<ModelVO> getModelVOList();
 
     /**
-     * 获取所有MLeap清单，供前端展示使用
+     * 添加模型
+     * @param modelName
+     * @param modelDesc
+     * @param cutMethodName
      * @return
      */
-    List<MLeapFileVO> getAllMLeapFileVOList();
+    MLeapEntity addModel(String modelName,
+                         String modelDesc,
+                         String cutMethodName) throws Exception;
+
+    /**
+     * 删除模型
+     * @param modelName
+     * @return
+     */
+    void delModel(String modelName) throws Exception;
+
+    /**
+     * 更新模型
+     * @param modelName
+     * @param modelDesc
+     * @param cutMethodName
+     * @return
+     */
+    MLeapEntity updateModel(String modelName,
+                            String modelDesc,
+                            String cutMethodName);
 }

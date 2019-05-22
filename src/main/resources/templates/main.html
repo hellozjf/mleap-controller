@@ -78,24 +78,29 @@
     <table cellpadding="5">
         <tr>
             <td>测试文本:</td>
-            <td><input id="testRaw" class="easyui-textbox" name="raw" data-options="multiline:true" style="height:160px; width:600px"></td>
+            <td><input id="testRaw" class="easyui-textbox" name="raw" data-options="multiline:true"
+                       style="height:160px; width:600px"></td>
             <td><a href="#" class="easyui-linkbutton" onclick="javascript:testModel()">测试</a></td>
         </tr>
         <tr>
             <td>切词结果:</td>
-            <td><input id="testWord" class="easyui-textbox" type="text" name="word" data-options="multiline:true,readonly:true" style="height:160px; width:600px"></td>
+            <td><input id="testWord" class="easyui-textbox" type="text" name="word"
+                       data-options="multiline:true,readonly:true" style="height:160px; width:600px"></td>
         </tr>
         <tr>
             <td>分类结果:</td>
-            <td><input id="testPredictString" class="easyui-textbox" type="text" name="predictString" data-options="readonly:true" style="width: 600px"></td>
+            <td><input id="testPredictString" class="easyui-textbox" type="text" name="predictString"
+                       data-options="readonly:true" style="width: 600px"></td>
         </tr>
         <tr>
             <td>分类类别:</td>
-            <td><input id="testPredict" class="easyui-textbox" type="text" name="predict" data-options="readonly:true" style="width: 600px"></td>
+            <td><input id="testPredict" class="easyui-textbox" type="text" name="predict" data-options="readonly:true"
+                       style="width: 600px"></td>
         </tr>
         <tr>
             <td>置信度:</td>
-            <td><input id="testProbability" class="easyui-textbox" type="text" name="probability" data-options="readonly:true" style="width: 600px"></td>
+            <td><input id="testProbability" class="easyui-textbox" type="text" name="probability"
+                       data-options="readonly:true" style="width: 600px"></td>
         </tr>
     </table>
 </div>
@@ -172,52 +177,43 @@
             console.debug("deletedRows = " + JSON.stringify(deletedRows));
             console.debug("updatedRows = " + JSON.stringify(updatedRows));
 
-            // 为deletedRows调用/web/delModel
-            for (var i = 0; i < deletedRows.length; i++) {
-                var deletedRow = deletedRows[i];
-                $.post({
-                    url: 'web/delModel',
-                    data: deletedRow,
-                    success: function (data) {
-                        console.debug(data);
-                    },
-                    dataType: 'json',
-                })
-            }
-            // 为updateRows调用/web/updateModel
-            for (var i = 0; i < updatedRows.length; i++) {
-                var updateRow = updatedRows[i];
-                $.post({
-                    url: 'web/updateModel',
-                    data: updateRow,
-                    success: function (data) {
-                        console.debug(data);
-                    },
-                    dataType: 'json',
-                })
-            }
-            // 为insertedRows调用/web/addModel
-            for (var i = 0; i < insertedRows.length; i++) {
-                var insertedRow = insertedRows[i];
-                $.post({
-                    url: 'web/addModel',
-                    data: insertedRow,
-                    success: function (data) {
-                        console.debug(data);
-                    },
-                    dataType: 'json',
-                })
-            }
+            $.messager.progress({
+                title: '提示',
+                msg: '正在进行保存',
+                text: '请等待...',
+                interval: '1000',
+            });
 
-            if (deletedRows.length || insertedRows.length) {
-                $.messager.confirm('消息', '检测到新增或删除模型，需要重启后生效，是否立即重启', function(r) {
-                    console.debug('r=' + r);
-                    if (r) {
-                        restart();
+            $.post({
+                url: 'web/addDelUpdateModels',
+                data: {
+                    deletedRows: JSON.stringify(deletedRows),
+                    updatedRows: JSON.stringify(updatedRows),
+                    insertedRows: JSON.stringify(insertedRows)
+                },
+                dataType: 'json',
+                success: function (data) {
+                    $.messager.progress('close');
+                    $('#dg').datagrid('reload');
+
+                    console.debug(data);
+                    if (data.code === 0) {
+                        $.messager.show({
+                            title: '消息',
+                            msg: '保存成功',
+                            timeout: 2000,
+                            showType: 'slide'
+                        });
+                    } else {
+                        $.messager.show({
+                            title: '消息',
+                            msg: '保存失败',
+                            timeout: 2000,
+                            showType: 'slide'
+                        });
                     }
-                });
-            }
-            $('#dg').datagrid('acceptChanges');
+                }
+            });
         }
     }
 
@@ -240,10 +236,10 @@
                 $.messager.progress('close');
                 $('#dg').datagrid('reload');
                 $.messager.show({
-                    title:'消息',
-                    msg:'docker重启成功',
-                    timeout:2000,
-                    showType:'slide'
+                    title: '消息',
+                    msg: 'docker重启成功',
+                    timeout: 2000,
+                    showType: 'slide'
                 });
             },
             dataType: 'json'
@@ -253,9 +249,10 @@
     function formatOper(val, row, index) {
         if (row.id) {
             // console.debug('val=' + val + ' row=' + row + ' index=' + index);
-            return '&nbsp;<a href="#" index="' + index + '" onclick="onlineModel($(this))">上传模型</a>&nbsp;'
+            return '&nbsp;<a href="#" index="' + index + '" onclick="onlineModel($(this))">上线模型</a>&nbsp;'
                 + '&nbsp;<a href="#" index="' + index + '" onclick="offlineModel($(this))">下线模型</a>&nbsp;'
-                + '&nbsp;<a href="#" index="' + index + '" onclick="openTestModelDialog($(this))">测试模型</a>&nbsp;';
+                + '&nbsp;<a href="#" index="' + index + '" onclick="openTestModelDialog($(this))">测试模型</a>&nbsp;'
+                + '&nbsp;<a href="#" index="' + index + '" onclick="downloadDialog($(this))">下载模型</a>&nbsp;';
         } else {
             return '';
         }
@@ -289,10 +286,10 @@
                 console.debug(data);
                 if (data.code === 0) {
                     $.messager.show({
-                        title:'消息',
-                        msg:'模型下线成功',
-                        timeout:2000,
-                        showType:'slide'
+                        title: '消息',
+                        msg: '模型下线成功',
+                        timeout: 2000,
+                        showType: 'slide'
                     });
                 } else {
                     alert('模型下线失败，失败原因：' + data.msg);
@@ -315,6 +312,12 @@
         $('#testPredict').textbox('setValue', '');
         $('#testProbability').textbox('setValue', '');
         $('#dlg').dialog('open');
+    }
+
+    function downloadDialog(e) {
+        var modelName = getModelNameByE(e);
+        var url = "web/downloadModel?modelName=" + modelName;
+        window.location.href = url;
     }
 
     function testModel() {
@@ -370,10 +373,10 @@
                     console.debug(data);
                     if (data.code === 0) {
                         $.messager.show({
-                            title:'消息',
-                            msg:'模型上线成功',
-                            timeout:2000,
-                            showType:'slide'
+                            title: '消息',
+                            msg: '模型上线成功',
+                            timeout: 2000,
+                            showType: 'slide'
                         });
                     } else {
                         alert('模型上线失败，失败原因：' + data.msg);
@@ -395,6 +398,21 @@
         var modelName = $(ed.target).textbox('getText');
         return modelName;
     }
+
+    $(function(){
+        $.messager.progress({
+            title: '提示',
+            msg: '服务启动中',
+            text: '请等待...',
+            interval: '1000',
+        });
+        $.get({
+            url: 'web/waitForStarted',
+            success: function (e) {
+                $.messager.progress('close');
+            }
+        });
+    });
 
 </script>
 </body>
