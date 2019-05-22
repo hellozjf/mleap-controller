@@ -144,7 +144,7 @@ public class DockerServiceImpl implements DockerService {
 
     @Override
     public void createDocker(String modelName) throws Exception {
-        String cmd = "docker-compose run -d " + modelName;
+        String cmd = "docker-compose up -d " + modelName;
         if (active.equalsIgnoreCase("dev")) {
             cmd = remoteService.createExecCommand("cd /opt/docker/mleap; " + cmd);
             Process process = runtime.exec(cmd);
@@ -157,7 +157,7 @@ public class DockerServiceImpl implements DockerService {
 
     @Override
     public void deleteDocker(String modelName) throws Exception {
-        String cmd = "docker-compose rm -f " + modelName;
+        String cmd = "docker-compose rm -sf " + modelName;
         if (active.equalsIgnoreCase("dev")) {
             cmd = remoteService.createExecCommand("cd /opt/docker/mleap; " + cmd);
             Process process = runtime.exec(cmd);
