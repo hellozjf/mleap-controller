@@ -52,8 +52,4 @@ public class CustomConfig {
      */
     private String remoteUsername;
 
-    /**
-     * dev时，需要的remote的密码
-     */
-    private String remotePassword;
 }
