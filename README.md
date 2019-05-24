@@ -1,5 +1,13 @@
 # 安装
 
+## 1.1.0及以后
+
+1. 安装docker，docker-compose和harbor，不懂请咨询我
+2. 将文件拷贝到服务器的`/opt/docker/mleap`文件夹中，它们分别是[start.sh](https://raw.githubusercontent.com/hellozjf/mleap-controller/master/mleap/start.sh)，[stop.sh](https://raw.githubusercontent.com/hellozjf/mleap-controller/master/mleap/stop.sh)，[clear.sh](https://raw.githubusercontent.com/hellozjf/mleap-controller/master/mleap/clear.sh)，[config.txt](https://raw.githubusercontent.com/hellozjf/mleap-controller/master/mleap/config.txt)，[mleap-controller-1.1.0.jar](https://raw.githubusercontent.com/hellozjf/mleap-controller/master/mleap/mleap-controller-1.1.0.jar)，[README.md](https://raw.githubusercontent.com/hellozjf/mleap-controller/master/mleap/README.md)
+3. 阅读README.md进行相应操作
+
+## 1.1.0以前
+
 1. 确保安装了docker，使用`docker --version`查看是否已经安装docker，如果没有安装，请参考 [https://docs.docker.com/install/linux/docker-ce/centos/](https://docs.docker.com/install/linux/docker-ce/centos/) 安装docker
     具体步骤是运行
 
@@ -120,29 +128,71 @@
 
 4. 使用`docker-compose up -d`开启容器，如果遇到端口冲突，修改`docker-compose.yml`文件中的8081端口为任意未被占用的端口。使用`docker-compose down`删除容器。
 
-# 通过Web界面使用（1.0.4及以后）
+# 使用
+
+## 通过Web界面使用（1.1.0及以后）
+
+访问[ip]:8081
+
+### 添加模型
+
+![](https://aliyun.hellozjf.com:7004/uploads/2019/5/24/{FF630569-D804-4263-8A8A-F0BA9C4F7CE2}_20190524100637.jpg)
+
+点击添加按钮，在最下方会出现一行，输入模型名称、模型描述、分词方式，点击保存即可完成添加模型
+
+### 删除模型
+
+![](https://aliyun.hellozjf.com:7004/uploads/2019/5/24/{2709E99B-8E16-4AEB-9ACB-767C32C6EFE2}_20190524100831.jpg)
+
+点击删除按钮，然后再点击保存按钮，即可完成模型删除
+
+### 上线模型
+
+在你想要上传的模型那行，点击上线模型链接，之后选择要上传的文件并确定，文件会自动上传到服务器。模型上线成功之后，会更新模型的MD5值。
+
+![](https://aliyun.hellozjf.com:7004/uploads/2019/5/24/{FD54A351-746D-428E-A6A3-B3F847D4E28C}_20190524101052.jpg)
+
+### 下线模型
+
+在你想要下线的模型那行，点击下线模型链接，服务器会自动下线模型，并删除模型。成功删除模型之后会删除该模型的MD5值
+
+![](https://aliyun.hellozjf.com:7004/uploads/2019/5/24/{DC80829D-66D2-4176-A121-DDCBF612B5A3}_20190524101332.jpg)
+
+### 测试模型
+
+在你想要测试的模型那行，点击测试模型链接，然后会弹出一个对话框，输入你想要测试的文本，点击测试按钮。测试的结果会显示在下面几个文本框中。
+
+![](https://aliyun.hellozjf.com:7004/uploads/2019/5/24/{39C5B953-FFFD-40A6-B143-27CD9ED70FE8}_20190524101618.jpg)
+
+### 下载模型
+
+在你想要下载的模型那行，点击下载按钮，即可将服务器上的模型文件下载到本地
+
+![](https://aliyun.hellozjf.com:7004/uploads/2019/5/24/{C2EFBA08-72B7-4B60-AC8B-307C2F257F48}_20190524101738.jpg)
+
+## 通过Web界面使用（1.0.4 - 1.0.6）
 
 访问[ip]:8081
 
 ![](https://aliyun.hellozjf.com:7004/uploads/2019/5/6/{C0D5C297-E6A2-465E-9958-A698BE76C1F4}_20190506163949.jpg)
 
-## 上传模型
+### 上传模型
 
 首先选择模型文件，然后点击上线，上线成功之后会有提示
 
-## 预测模型
+### 预测模型
 
 将待预测的文本写到输入框中，点击测试，之后会有测试结果
 
-## 下线模型
+### 下线模型
 
 点击下线按钮
 
-# 通过Postman使用（1.0.3及以前）
+## 通过Postman使用（1.0.0 - 1.0.3）
 
 RestTemplate代码实现参见test包下面的`SwModelTest`和`YythModelTest`
 
-## 上传模型
+### 上传模型
 
 ![](https://aliyun.hellozjf.com:7004/uploads/2019/4/3/menu.saveimg.savepath20190403141620.jpg)
 
@@ -159,7 +209,7 @@ RestTemplate代码实现参见test包下面的`SwModelTest`和`YythModelTest`
 
 
 
-## 查看模型对应的路径
+### 查看模型对应的路径
 
 访问[http://192.168.2.149:8081/h2](http://192.168.2.149:8081/h2)，修改`JDBC URL`为`jdbc:h2:file:/app/mleap`，修改`User Name`为`root`，修改`Password`为`123456`，点击连接
 
@@ -169,21 +219,21 @@ RestTemplate代码实现参见test包下面的`SwModelTest`和`YythModelTest`
 
 ![](https://aliyun.hellozjf.com:7004/uploads/2019/4/29/{3517F9FA-3771-4C00-80C2-D034129906E7}_20190429104502.jpg)
 
-## 预测模型
+### 预测模型
 
 <font color="#ff9900">注意，上传模型使用的url，需要和预测模型使用的url保持一致。</font>例如上传时用了`mleap1`，那么预测的时候也要使用`mleap1`
 
-### 有词性
+#### 有词性
 
 ![](https://aliyun.hellozjf.com:7004/uploads/2019/4/3/menu.saveimg.savepath20190403142005.jpg)
 
-### 无词性
+#### 无词性
 
 ![](https://aliyun.hellozjf.com:7004/uploads/2019/4/3/menu.saveimg.savepath20190403142127.jpg)
 
 # 程序源码
 
-[https://github.com/hellozjf/mleap-controller.git](https://github.com/hellozjf/mleap-controller.git)
+[mleap-controller](https://github.com/hellozjf/mleap-controller.git)，[mleap-bridge](https://github.com/hellozjf/mleap-bridge.git)
 
 ## 源码部署到docker
 
@@ -207,6 +257,10 @@ RestTemplate代码实现参见test包下面的`SwModelTest`和`YythModelTest`
 `mvn clean install`，将工程打包，构造docker镜像，并上传到虚拟机192.168.56.111的docker仓库中
 
 `mvn clean deploy`，将工程打包，构造docker镜像，并上传到docker研发中心仓库192.168.2.150中
+
+## 程序组织结构图
+
+![](https://aliyun.hellozjf.com:7004/uploads/2019/5/24/mleap-controller架构图20190524.png)
 
 # Harbor仓库相关
 
